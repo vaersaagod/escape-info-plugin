@@ -1,0 +1,32 @@
+{
+  "name": "escape/info",
+  "description": "",
+  "type": "craft-plugin",
+  "version": "1.0.0",
+  "keywords": [],
+  "support": {
+    "docs": "???",
+    "issues": "???"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Værsågod",
+      "homepage": "https://vaersaagod.no"
+    }
+  ],
+  "require": {
+    "craftcms/cms": "^3.5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "escape\\info\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Escape Info",
+    "handle": "escape-info",
+    "changelogUrl": "???",
+    "class": "escape\\info\\EscapeInfo"
+  }
+}
