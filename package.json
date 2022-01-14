@@ -1,0 +1,39 @@
+{
+  "name": "escape-info-plugin",
+  "version": "1.0.0",
+  "repository": "git@bitbucket.org:vaersaagod/escape-info-playground-plugin.git",
+  "author": "Mats Mikkel Rummelhoff <mail@mmikkel.no>",
+  "license": "GNU",
+  "private": true,
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "start": "parcel watch",
+    "build": "parcel build"
+  },
+  "targets": {
+    "shoutouts-button.js": {
+      "source": [
+        "./src/web/assets/src/shoutouts-button.js",
+        "./src/web/assets/src/shoutouts-button.css"
+      ],
+      "distDir": "./src/web/assets/dist"
+    },
+    "adspace-select-field.js": {
+      "source": [
+        "./src/web/assets/src/cp/adspace-select-field.js",
+        "./src/web/assets/src/cp/adspace-select-field.css"
+      ],
+      "distDir": "./src/web/assets/dist/cp"
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "concurrently": "^6.5.1",
+    "dotenv": "^10.0.0",
+    "http-proxy-middleware": "^2.0.1",
+    "parcel": "^2.0.1",
+    "postcss": "^8.4.5",
+    "tailwindcss": "^3.0.8"
+  }
+}

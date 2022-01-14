@@ -1,0 +1,18 @@
+.escape-info-adspace-select-field {
+    border-radius: 3px;
+    border: 1px solid rgba(96, 125, 159, 0.25);
+    background-color: #fbfcfe;
+    min-height: 100% !important;
+    display: block;
+}
+
+.escape-info-adspace-select-field .selectize-input {
+    border: 0 !important;
+    background: none !important;
+    display: block;
+    font-size: 12px;
+}
+
+.escape-info-adspace-select-field.selectize-control {
+    margin: 0;
+}
