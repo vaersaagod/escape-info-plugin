@@ -7,9 +7,11 @@ use craft\base\Component;
 use craft\elements\Entry;
 use craft\helpers\UrlHelper;
 use craft\web\View;
-use escape\info\assetbundles\ShoutoutsButtonBundle;
+use escape\info\assetbundles\AdspaceBannerBundle;
+use escape\info\assetbundles\AdspaceShoutoutsBundle;
 use escape\info\EscapeInfo;
 use escape\info\helpers\AdspaceHelper;
+use GuzzleHttp\Client;
 
 /**
  *
@@ -33,9 +35,7 @@ class Adspace extends Component
                 return $cachedData;
             }
         }
-        $client = Craft::createGuzzleClient([
-            'base_uri' => EscapeInfo::getInstance()->getSettings()->escapeInfoUrl,
-        ]);
+        $client = $this->getGuzzleClient();
         try {
             $response = $client->get('adspace/sites');
             $data = \json_decode($response->getBody()->getContents(), true)['data'] ?? null;
@@ -60,15 +60,14 @@ class Adspace extends Component
     public function getAds(): array
     {
         $cacheKey = EscapeInfo::getInstance()->getVersion() . '-adspace-ads';
-        if ($cachesEnabled = EscapeInfo::getInstance()->getSettings()->cachesEnabled) {
+        $cachesEnabled = EscapeInfo::getInstance()->getSettings()->cachesEnabled;
+        if ($cachesEnabled) {
             $cachedData = Craft::$app->getCache()->get($cacheKey);
             if ($cachedData && \is_array($cachedData)) {
                 return $cachedData;
             }
         }
-        $client = Craft::createGuzzleClient([
-            'base_uri' => EscapeInfo::getInstance()->getSettings()->escapeInfoUrl,
-        ]);
+        $client = $this->getGuzzleClient();
         try {
             $response = $client->get('adspace/ads');
             $data = \json_decode($response->getBody()->getContents(), true)['data'] ?? null;
@@ -94,7 +93,7 @@ class Adspace extends Component
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function renderShoutoutsButton(?array $selectedAds = null): string
+    public function renderShoutouts(?array $selectedAds = null): string
     {
         if (!$selectedAds || empty($selectedAds)) {
             return '';
@@ -112,6 +111,7 @@ class Adspace extends Component
         $adsToDisplay = \array_reduce($selectedAds, function (array $carry, array $selectedAd) use ($allAdsByKey) {
             $key = "{$selectedAd['uid']}:{$selectedAd['siteUid']}";
             $ad = $allAdsByKey[$key] ?? null;
+            // Only live ads please!
             if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
                 return $carry;
             }
@@ -125,10 +125,62 @@ class Adspace extends Component
         if (empty($adsToDisplay)) {
             return '';
         }
-        Craft::$app->getView()->registerAssetBundle(ShoutoutsButtonBundle::class);
-        return Craft::$app->getView()->renderTemplate('escape-info/_components/adspace/shoutouts-button.twig', [
+        Craft::$app->getView()->registerAssetBundle(AdspaceShoutoutsBundle::class);
+        return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-shoutouts.twig', [
             'ads' => $adsToDisplay,
         ], View::TEMPLATE_MODE_CP);
+    }
+
+    /**
+     * @param string $adUid
+     * @param string $siteUid
+     * @return string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Throwable
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function renderBanner(string $adUid, string $siteUid): string
+    {
+        // If sandbox mode, render nothing for anonymous users
+        $settings = EscapeInfo::getInstance()->getSettings();
+        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
+            return '';
+        }
+        // Make sure that this is a valid ad
+        $allAds = EscapeInfo::getInstance()->adspace->getAds();
+        $allAdsByKey = \array_reduce($allAds, function (array $carry, array $ad) {
+            $carry["{$ad['uid']}:{$ad['siteUid']}"] = $ad;
+            return $carry;
+        }, []);
+        $ad = $allAdsByKey["$adUid:$siteUid"] ?? null;
+        if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
+            return '';
+        }
+        Craft::$app->getView()->registerAssetBundle(AdspaceBannerBundle::class);
+        return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-banner.twig', [
+            'ad' => \array_merge($ad, [
+                'url' => AdspaceHelper::getUrl("adspace/serve/{$ad['siteUid']}/{$ad['uid']}", [
+                    'container' => AdspaceHelper::CONTAINER_BANNER,
+                ]),
+            ]),
+        ], View::TEMPLATE_MODE_CP);
+    }
+
+    /**
+     * @param array $config
+     * @return Client
+     */
+    protected function getGuzzleClient(array $config = []): Client
+    {
+        return Craft::createGuzzleClient(\array_merge([
+            'base_uri' => EscapeInfo::getInstance()->getSettings()->escapeInfoUrl,
+            'connect_timeout' => 2,
+            'read_timeout' => 2,
+        ], $config));
     }
 
 }

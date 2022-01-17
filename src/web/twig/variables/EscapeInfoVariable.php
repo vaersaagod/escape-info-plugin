@@ -4,6 +4,8 @@ namespace escape\info\web\twig\variables;
 
 use Craft;
 
+use craft\helpers\Json;
+use craft\helpers\Template;
 use escape\info\EscapeInfo;
 
 class EscapeInfoVariable
@@ -18,9 +20,28 @@ class EscapeInfoVariable
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function renderShoutoutsButton(?array $selectedAds = null)
+    public function renderAdspaceShoutouts(?array $selectedAds = null): string
     {
-        return EscapeInfo::getInstance()->adspace->renderShoutoutsButton($selectedAds);
+        return EscapeInfo::getInstance()->adspace->renderShoutouts($selectedAds);
+    }
+
+    /**
+     * @param string $adUid
+     * @param string $siteUid
+     * @param array $attributes
+     * @return string
+     */
+    public function renderAdspaceBannerPlaceholder(string $adUid, string $siteUid, array $attributes = []): string
+    {
+        // Render a placeholder as an HTML comment
+        $data = Json::encode([
+            'ad' => [
+                'uid' => $adUid,
+                'siteUid' => $siteUid,
+            ],
+            'attributes' => $attributes,
+        ]);
+        return Template::raw("<!-- playground-banner:$data -->");
     }
 
 }

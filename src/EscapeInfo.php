@@ -6,6 +6,9 @@ use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\events\TemplateEvent;
+use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\services\Fields;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\View;
@@ -63,6 +66,32 @@ class EscapeInfo extends Plugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function (RegisterComponentTypesEvent $event) {
             $event->types[] = AdspaceSelect::class;
         });
+
+        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        if ($isSiteRequest) {
+            Event::on(
+                View::class,
+                View::EVENT_AFTER_RENDER_PAGE_TEMPLATE,
+                function (TemplateEvent $event) {
+                    \preg_match_all('/(<!-- playground-banner:)(.*)( -->)/', $event->output, $matches);
+                    if (!empty($matches[0] ?? null)) {
+                        for ($i = 0; $i < \count($matches[0]); $i++) {
+                            $match = $matches[0][$i];
+                            $data = Json::decodeIfJson($matches[2][$i]);
+                            $ad = $data['ad'];
+                            $attributes = $data['attributes'] ?? [];
+                            try {
+                                $html = Html::modifyTagAttributes(EscapeInfo::getInstance()->adspace->renderBanner($ad['uid'], $ad['siteUid']), $attributes);
+                            } catch (\Throwable $e) {
+                                $html = '';
+                            }
+                            $event->output = \str_replace($match, $html, $event->output);
+                        }
+                    }
+                }
+            );
+        }
+
     }
 
     /**

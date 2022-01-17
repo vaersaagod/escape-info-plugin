@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+#shoutouts-button {
+    &:active {
+        transform: scale(0.9, 0.9);
+    }
+}
+
 #shoutouts-popup {
 
     [data-playground-inner] {
@@ -113,6 +119,18 @@
 
     .flickity-page-dots .dot.is-selected {
         background-color: currentColor;
+    }
+
+}
+
+.adspace-banner {
+
+    iframe {
+        opacity: 0;
+        &.lazyloaded {
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
     }
 
 }
