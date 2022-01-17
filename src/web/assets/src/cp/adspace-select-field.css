@@ -13,6 +13,54 @@
     font-size: 12px;
 }
 
+.escape-info-adspace-select-field .selectize-input .item {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    border-radius: 4px;
+    background-color: #f3f7fc !important;
+    box-shadow: 0 0 0 1px #cdd8e4, 0 2px 12px rgb(205 216 228 / 50%);
+    user-select: none;
+}
+
+.escape-info-adspace-select-field .selectize-input .item .remove {
+    font-weight: normal;
+}
+
+.escape-info-adspace-select-field .selectize-input .status {
+    margin-right: 5px;
+}
+
+.escape-info-adspace-select-field .selectize-input .item .remove:hover {
+    background-color: #e4edf6;
+}
+
 .escape-info-adspace-select-field.selectize-control {
     margin: 0;
+}
+
+.escape-info-adspace-select-field .selectize-dropdown-content {
+    padding-top: 0;
+    padding-bottom: 0;
+    border-radius: 0;
+    font-size: 12px;
+}
+
+.escape-info-adspace-select-field .selectize-dropdown {
+    border-radius: 0;
+    margin-top: -1px;
+}
+
+.escape-info-adspace-select-field .selectize-dropdown .option {
+    display: flex;
+    align-items: center;
+}
+
+.escape-info-adspace-select-field .selectize-dropdown .active {
+    background-color: rgba(96, 125, 159, 0.25);
+    color: currentColor;
+}
+
+.escape-info-adspace-select-field .selectize-dropdown .status {
+    margin-right: 10px;
 }

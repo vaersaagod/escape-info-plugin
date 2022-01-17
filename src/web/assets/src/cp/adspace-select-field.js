@@ -6,19 +6,39 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
     var $hiddenInput = $el.find('input[type="hidden"]').eq(0);
 
     var ads = JSON.parse(config.ads);
+    var sites = JSON.parse(config.sites);
+    var sitesByUid = sites.reduce(function (carry, site) {
+        carry[site.uid] = site;
+        return carry;
+    }, {});
 
-    var initialSelectedElements = $hiddenInput.val() ? JSON.parse($hiddenInput.val()) : [];
+    function createKey(obj) {
+        obj.key = obj.uid + ':' + obj.siteUid;
+        return obj;
+    }
+
+    var initialSelectedElements = ($hiddenInput.val() ? JSON.parse($hiddenInput.val()) : []).map(createKey);
 
     $feedInput.selectize({
         create: false,
         placeholder: Craft.t('site', 'Search for and select ads'),
         sortField: 'title',
-        valueField: 'uid',
         labelField: 'title',
+        valueField: 'key',
         searchField: ['title'],
         plugins: ["remove_button"],
+        render: {
+            item: function (data) {
+                var site = sitesByUid[data.siteUid];
+                return '<div class="item active" data-value="' + data.key + '"><span class="status ' + data.status + '"></span><span>' + (data.title + ' (' + site.handle + ')') + '</span></div>';
+            },
+            option: function (data) {
+                var site = sitesByUid[data.siteUid];
+                return '<div class="option" data-value="' + data.key + '"><span class="status ' + data.status + '"></span><span>' + (data.title + ' (' + site.handle + ')') + '</span></div>';
+            }
+        },
         items: initialSelectedElements.map(function (element) {
-            return element.uid;
+            return element.key;
         }),
         options: initialSelectedElements
     });
@@ -28,16 +48,16 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
 
     function fetchOptions() {
         selectize.clearOptions();
-        var site = $sourceSelect.val();
+        var siteUid = $sourceSelect.val();
         feedElements = [];
         for (var i = 0; i < ads.length; ++i) {
-            if (ads[i].site !== site) {
+            if (ads[i].siteUid !== siteUid) {
                 continue;
             }
             feedElements.push(ads[i]);
         }
         feedElements.forEach(ad => {
-            selectize.addOption(ad);
+            selectize.addOption(createKey(ad));
         });
         selectize.refreshOptions();
         // var url = Craft.getActionUrl('playground/feeds/get-feed', {
@@ -57,47 +77,54 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
     }
 
     selectize.on('focus', function () {
-        // if (!feedElements) {
-        //     fetchOptions();
-        // }
         fetchOptions();
     });
 
     var prevSelectedElements = initialSelectedElements;
 
     selectize.on('change', function () {
-        var selectedUids = this.items;
-        var prevSelectedElementsByUid = prevSelectedElements.reduce(function (carry, element) {
-            carry[element.uid] = element;
+
+        var selectedKeys = this.items;
+
+        var prevSelectedElementsByKey = prevSelectedElements.reduce(function (carry, element) {
+            carry[element.key] = element;
             return carry;
         }, {});
+
         var newSelectedElements = (feedElements || initialSelectedElements).reduce(function (carry, element) {
-            var uid = element.uid;
-            if (selectedUids.indexOf(uid) === -1) {
+            var key = element.key;
+            if (selectedKeys.indexOf(key) === -1) {
                 return carry;
             }
-            if (prevSelectedElementsByUid[uid] && !!prevSelectedElementsByUid[uid].uid) {
-                element = prevSelectedElementsByUid[uid];
+            if (prevSelectedElementsByKey[key] && !!prevSelectedElementsByKey[key].key) {
+                element = prevSelectedElementsByKey[key];
             }
-            element.site = element.site || $sourceSelect.val();
             return carry.concat(element);
         }, []);
 
-        var newSelectedElementUids = newSelectedElements.map(function (element) {
-            return element.uid;
+        var newSelectedElementKeys = newSelectedElements.map(function (element) {
+            return element.key;
         });
 
         prevSelectedElements.forEach(function (element) {
-            var uid = element.uid;
-            if (selectedUids.indexOf(uid) === -1 || newSelectedElementUids.indexOf(uid) !== -1) {
+            var key = element.key;
+            if (selectedKeys.indexOf(key) === -1 || newSelectedElementKeys.indexOf(key) !== -1) {
                 return;
             }
             newSelectedElements.push(element);
         });
 
-        $hiddenInput.val(JSON.stringify(newSelectedElements));
-
         prevSelectedElements = newSelectedElements;
+
+        var values = selectedKeys.map(key => {
+            var temp = key.split(':');
+            return {
+                uid: temp[0],
+                siteUid: temp[1]
+            };
+        });
+
+        $hiddenInput.val(JSON.stringify(values));
 
         if (window.draftEditor) {
             window.draftEditor.checkForm();

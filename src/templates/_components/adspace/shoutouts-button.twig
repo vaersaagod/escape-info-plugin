@@ -1,12 +1,26 @@
 <div class="relative w-[44px] h-[44px] z-1">
-    <button id="shoutouts-button" class="w-full h-full text-current inline-flex justify-center items-center" aria-expanded="false">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.456 5.064h-1.01a3.343 3.343 0 0 0 .445-1.67c0-1.35-.767-2.528-2.001-3.076a3.324 3.324 0 0 0-3.623.583l-2.133 1.933A2.543 2.543 0 0 0 13 1.673c-.895 0-1.682.464-2.136 1.164L8.728.901A3.325 3.325 0 0 0 5.104.318a3.325 3.325 0 0 0-2.001 3.077c0 .607.163 1.177.445 1.67H2.543A2.546 2.546 0 0 0 0 7.607v3.39c0 .47.38.849.848.849h.848v11.587a2.546 2.546 0 0 0 2.543 2.543h17.522a2.546 2.546 0 0 0 2.543-2.543V11.847h.848c.468 0 .848-.38.848-.848V7.608a2.546 2.546 0 0 0-2.544-2.544Zm-13 19.217H4.24a.849.849 0 0 1-.848-.847V11.847h7.066V24.28Zm0-14.13h-8.76V7.608c0-.468.38-.848.847-.848h7.913v3.391ZM6.469 5.064c-.92 0-1.67-.749-1.67-1.67 0-.68.372-1.25.994-1.526.227-.1.46-.15.69-.15.4 0 .787.15 1.107.44l3.207 2.906H6.468ZM13 3.368c.4 0 .736.28.824.653l-.827.75-.822-.746A.849.849 0 0 1 13 3.368Zm.848 20.913h-1.696V11.847h1.696V24.28Zm0-14.13h-1.696V6.76h1.696v3.391Zm4.557-7.993a1.63 1.63 0 0 1 1.798-.29c.621.276.993.847.993 1.527 0 .92-.75 1.67-1.67 1.67h-4.328l3.207-2.907Zm4.204 21.276c0 .467-.38.848-.848.848h-6.217V11.847h7.065v11.587Zm1.695-13.283h-8.76V6.76h7.912c.468 0 .848.38.848.848v2.543Z"/></svg>
+    <button id="shoutouts-button" class="w-full h-full text-current inline-flex justify-center items-center"
+            aria-expanded="false">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M23.456 5.064h-1.01a3.343 3.343 0 0 0 .445-1.67c0-1.35-.767-2.528-2.001-3.076a3.324 3.324 0 0 0-3.623.583l-2.133 1.933A2.543 2.543 0 0 0 13 1.673c-.895 0-1.682.464-2.136 1.164L8.728.901A3.325 3.325 0 0 0 5.104.318a3.325 3.325 0 0 0-2.001 3.077c0 .607.163 1.177.445 1.67H2.543A2.546 2.546 0 0 0 0 7.607v3.39c0 .47.38.849.848.849h.848v11.587a2.546 2.546 0 0 0 2.543 2.543h17.522a2.546 2.546 0 0 0 2.543-2.543V11.847h.848c.468 0 .848-.38.848-.848V7.608a2.546 2.546 0 0 0-2.544-2.544Zm-13 19.217H4.24a.849.849 0 0 1-.848-.847V11.847h7.066V24.28Zm0-14.13h-8.76V7.608c0-.468.38-.848.847-.848h7.913v3.391ZM6.469 5.064c-.92 0-1.67-.749-1.67-1.67 0-.68.372-1.25.994-1.526.227-.1.46-.15.69-.15.4 0 .787.15 1.107.44l3.207 2.906H6.468ZM13 3.368c.4 0 .736.28.824.653l-.827.75-.822-.746A.849.849 0 0 1 13 3.368Zm.848 20.913h-1.696V11.847h1.696V24.28Zm0-14.13h-1.696V6.76h1.696v3.391Zm4.557-7.993a1.63 1.63 0 0 1 1.798-.29c.621.276.993.847.993 1.527 0 .92-.75 1.67-1.67 1.67h-4.328l3.207-2.907Zm4.204 21.276c0 .467-.38.848-.848.848h-6.217V11.847h7.065v11.587Zm1.695-13.283h-8.76V6.76h7.912c.468 0 .848.38.848.848v2.543Z"/>
+        </svg>
     </button>
-    <div id="shoutouts-popup" class="absolute top-full left-1/2 -translate-x-1/2 w-[400px] mt-[10px] max-w-[90vw] hidden">
+    <div id="shoutouts-popup"
+         class="absolute top-full left-1/2 -translate-x-1/2 w-[400px] mt-[10px] max-w-[90vw] hidden">
         <div class="relative w-full p-[20px]">
-            <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg" class="absolute w-[12px] h-[9px] left-1/2 -translate-x-1/2 bottom-full"><path d="m6.36 0 5.196 9H.264L6.36 0Z" fill="currentColor"/></svg>
-            <div class="relative w-full h-[520px] bg-white text-black rounded-[5px] z-[999999] shadow-md overflow-hidden -mt-[20px] p-[20px]">
-                <iframe class="absolute w-full h-full top-0 left-0 p-0 text-black" src="http://escape-playground.test/etno/testing-adspace/test-adspace?container=shoutout"></iframe>
+            <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 class="absolute w-[12px] h-[9px] left-1/2 -translate-x-1/2 bottom-full">
+                <path d="m6.36 0 5.196 9H.264L6.36 0Z" fill="currentColor"/>
+            </svg>
+            <div
+                class="relative flex w-full h-[520px] bg-white text-black rounded-[5px] z-[999999] shadow-md overflow-hidden -mt-[20px]"
+                data-ads="{{ ads|json_encode|e('js') }}">
+                {% for ad in ads %}
+                    <div class="relative w-full h-full flex-none p-[20px]" data-shoutout>
+                        <iframe class="absolute w-full h-full inset-0 p-0 z-10 text-black overflow-hidden" data-src="{{ ad.url }}"></iframe>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>

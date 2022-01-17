@@ -5,7 +5,10 @@
 <div class="flex" style="align-items:flex-start;">
 
     {{ forms.select({
-        options: sites,
+        options: sites|map(site => {
+            label: site.name,
+            value: site.uid
+        }),
         value: selectedSite ?? null
     })|attr({ style: 'width:auto;flex:0 0 auto;' }) }}
 
@@ -22,7 +25,8 @@
 {% js %}
     $(function () {
         new EscapeInfoAdspaceSelectField('#{{ id }}-field', {
-            ads: '{{ ads|json_encode|e('js') }}'
+            ads: '{{ ads|json_encode|e('js') }}',
+            sites: '{{ sites|json_encode|e('js') }}'
         });
     });
 {% endjs %}

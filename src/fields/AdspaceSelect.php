@@ -10,6 +10,7 @@ use craft\helpers\Json;
 
 use craft\helpers\UrlHelper;
 use escape\info\EscapeInfo;
+use yii\db\Schema;
 
 class AdspaceSelect extends Field
 {
@@ -32,6 +33,12 @@ class AdspaceSelect extends Field
         return 'mixed';
     }
 
+    /** @inheritdoc */
+    public function getContentColumnType()
+    {
+        return Schema::TYPE_TEXT;
+    }
+
     /**
      * @param mixed $value
      * @param ElementInterface|null $element
@@ -46,6 +53,27 @@ class AdspaceSelect extends Field
         if (!is_array($value) || empty($value)) {
             return [];
         }
+
+        try {
+            $ads = EscapeInfo::getInstance()->adspace->getAds();
+        } catch (\Throwable $e) {
+            Craft::error($e->getMessage(), __METHOD__);
+            if (Craft::$app->getConfig()->getGeneral()->devMode) {
+                throw $e;
+            }
+        }
+
+        // Filter out any selected ads not available from Playground
+        // Also fetch the updated status from Playground
+        $value = \array_reduce($value, function (array $carry, array $selectedAd) use ($ads) {
+            foreach ($ads as $ad) {
+                if ($ad['uid'] === $selectedAd['uid'] && $ad['siteUid'] === $selectedAd['siteUid']) {
+                    $carry[] = $ad;
+                    return $carry;
+                }
+            }
+            return $carry;
+        }, []);
 
         return $value;
     }
@@ -87,12 +115,6 @@ class AdspaceSelect extends Field
 
         // Get sites
         $sites = EscapeInfo::getInstance()->adspace->getSites();
-        $siteSources = \array_map(function (array $site) {
-            return [
-                'label' => $site['name'],
-                'value' => $site['handle'],
-            ];
-        }, $sites);
 
         $settings = EscapeInfo::getInstance()->getSettings();
         $defaultSite = $settings->defaultSite;
@@ -102,7 +124,7 @@ class AdspaceSelect extends Field
         return Craft::$app->getView()->renderTemplate('escape-info/_components/fields/AdspaceSelect/input.twig', [
             'id' => $namespacedId,
             'name' => $this->handle,
-            'sites' => $siteSources,
+            'sites' => $sites,
             'selectedSite' => $defaultSite,
             'ads' => $ads,
             'value' => Json::encode($value),

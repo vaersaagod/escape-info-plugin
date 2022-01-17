@@ -80,11 +80,13 @@
     return cache[name].exports;
 
     function localRequire(x) {
-      return newRequire(localRequire.resolve(x));
+      var res = localRequire.resolve(x);
+      return res === false ? {} : newRequire(res);
     }
 
     function resolve(x) {
-      return modules[name][1][x] || x;
+      var id = modules[name][1][x];
+      return id != null ? id : x;
     }
   }
 
@@ -140,13 +142,25 @@
       this[globalName] = mainExports;
     }
   }
-})({"hBBvr":[function(require,module,exports) {
+})({"72Vzw":[function(require,module,exports) {
 "use strict";
 var HMR_HOST = null;
 var HMR_PORT = 1234;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "916932b22e4085ab";
 module.bundle.HMR_BUNDLE_ID = "4a5edfddf4740af0";
+function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+}
+function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
 function _createForOfIteratorHelper(o, allowArrayLike) {
     var it;
     if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
@@ -406,6 +420,16 @@ function hmrApply(bundle, asset) {
     else if (asset.type === 'js') {
         var deps = asset.depsByBundle[bundle.HMR_BUNDLE_ID];
         if (deps) {
+            if (modules[asset.id]) {
+                // Remove dependencies that are removed and will become orphaned.
+                // This is necessary so that if the asset is added back again, the cache is gone, and we prevent a full page reload.
+                var oldDeps = modules[asset.id][1];
+                for(var dep in oldDeps)if (!deps[dep] || deps[dep] !== oldDeps[dep]) {
+                    var id = oldDeps[dep];
+                    var parents = getParents(module.bundle.root, id);
+                    if (parents.length === 1) hmrDelete(module.bundle.root, id);
+                }
+            }
             var fn = new Function('require', 'module', 'exports', asset.output);
             modules[asset.id] = [
                 fn,
@@ -414,7 +438,48 @@ function hmrApply(bundle, asset) {
         } else if (bundle.parent) hmrApply(bundle.parent, asset);
     }
 }
+function hmrDelete(bundle, id1) {
+    var modules = bundle.modules;
+    if (!modules) return;
+    if (modules[id1]) {
+        // Collect dependencies that will become orphaned when this module is deleted.
+        var deps = modules[id1][1];
+        var orphans = [];
+        for(var dep in deps){
+            var parents = getParents(module.bundle.root, deps[dep]);
+            if (parents.length === 1) orphans.push(deps[dep]);
+        } // Delete the module. This must be done before deleting dependencies in case of circular dependencies.
+        delete modules[id1];
+        delete bundle.cache[id1]; // Now delete the orphans.
+        orphans.forEach(function(id) {
+            hmrDelete(module.bundle.root, id);
+        });
+    } else if (bundle.parent) hmrDelete(bundle.parent, id1);
+}
 function hmrAcceptCheck(bundle, id, depsByBundle) {
+    if (hmrAcceptCheckOne(bundle, id, depsByBundle)) return true;
+     // Traverse parents breadth first. All possible ancestries must accept the HMR update, or we'll reload.
+    var parents = getParents(module.bundle.root, id);
+    var accepted = false;
+    while(parents.length > 0){
+        var v = parents.shift();
+        var a = hmrAcceptCheckOne(v[0], v[1], null);
+        if (a) // If this parent accepts, stop traversing upward, but still consider siblings.
+        accepted = true;
+        else {
+            // Otherwise, queue the parents in the next level upward.
+            var p = getParents(module.bundle.root, v[1]);
+            if (p.length === 0) {
+                // If there are no parents, then we've reached an entry without accepting. Reload.
+                accepted = false;
+                break;
+            }
+            parents.push.apply(parents, _toConsumableArray(p));
+        }
+    }
+    return accepted;
+}
+function hmrAcceptCheckOne(bundle, id, depsByBundle) {
     var modules = bundle.modules;
     if (!modules) return;
     if (depsByBundle && !depsByBundle[bundle.HMR_BUNDLE_ID]) {
@@ -430,12 +495,7 @@ function hmrAcceptCheck(bundle, id, depsByBundle) {
         bundle,
         id
     ]);
-    if (cached && cached.hot && cached.hot._acceptCallbacks.length) return true;
-    var parents = getParents(module.bundle.root, id); // If no parents, the asset is new. Prevent reloading the page.
-    if (!parents.length) return true;
-    return parents.some(function(v) {
-        return hmrAcceptCheck(v[0], v[1], null);
-    });
+    if (!cached || cached.hot && cached.hot._acceptCallbacks.length) return true;
 }
 function hmrAcceptRun(bundle, id) {
     var cached = bundle.cache[id];
@@ -465,21 +525,41 @@ window.EscapeInfoAdspaceSelectField = function(id, config) {
     var $feedInput = $el.find('input.selectize-text').eq(0);
     var $hiddenInput = $el.find('input[type="hidden"]').eq(0);
     var ads = JSON.parse(config.ads);
-    var initialSelectedElements = $hiddenInput.val() ? JSON.parse($hiddenInput.val()) : [];
+    var sites = JSON.parse(config.sites);
+    var sitesByUid = sites.reduce(function(carry, site) {
+        carry[site.uid] = site;
+        return carry;
+    }, {
+    });
+    function createKey(obj) {
+        obj.key = obj.uid + ':' + obj.siteUid;
+        return obj;
+    }
+    var initialSelectedElements = ($hiddenInput.val() ? JSON.parse($hiddenInput.val()) : []).map(createKey);
     $feedInput.selectize({
         create: false,
         placeholder: Craft.t('site', 'Search for and select ads'),
         sortField: 'title',
-        valueField: 'uid',
         labelField: 'title',
+        valueField: 'key',
         searchField: [
             'title'
         ],
         plugins: [
             "remove_button"
         ],
+        render: {
+            item: function item(data) {
+                var site = sitesByUid[data.siteUid];
+                return '<div class="item active" data-value="' + data.key + '"><span class="status ' + data.status + '"></span><span>' + (data.title + ' (' + site.handle + ')') + '</span></div>';
+            },
+            option: function option(data) {
+                var site = sitesByUid[data.siteUid];
+                return '<div class="option" data-value="' + data.key + '"><span class="status ' + data.status + '"></span><span>' + (data.title + ' (' + site.handle + ')') + '</span></div>';
+            }
+        },
         items: initialSelectedElements.map(function(element) {
-            return element.uid;
+            return element.key;
         }),
         options: initialSelectedElements
     });
@@ -487,14 +567,14 @@ window.EscapeInfoAdspaceSelectField = function(id, config) {
     var selectize = $feedInput.get(0).selectize;
     function fetchOptions() {
         selectize.clearOptions();
-        var site = $sourceSelect.val();
+        var siteUid = $sourceSelect.val();
         feedElements = [];
         for(var i = 0; i < ads.length; ++i){
-            if (ads[i].site !== site) continue;
+            if (ads[i].siteUid !== siteUid) continue;
             feedElements.push(ads[i]);
         }
         feedElements.forEach(function(ad) {
-            selectize.addOption(ad);
+            selectize.addOption(createKey(ad));
         });
         selectize.refreshOptions();
     // var url = Craft.getActionUrl('playground/feeds/get-feed', {
@@ -513,36 +593,39 @@ window.EscapeInfoAdspaceSelectField = function(id, config) {
     // });
     }
     selectize.on('focus', function() {
-        // if (!feedElements) {
-        //     fetchOptions();
-        // }
         fetchOptions();
     });
     var prevSelectedElements = initialSelectedElements;
     selectize.on('change', function() {
-        var selectedUids = this.items;
-        var prevSelectedElementsByUid = prevSelectedElements.reduce(function(carry, element) {
-            carry[element.uid] = element;
+        var selectedKeys = this.items;
+        var prevSelectedElementsByKey = prevSelectedElements.reduce(function(carry, element) {
+            carry[element.key] = element;
             return carry;
         }, {
         });
         var newSelectedElements = (feedElements || initialSelectedElements).reduce(function(carry, element) {
-            var uid = element.uid;
-            if (selectedUids.indexOf(uid) === -1) return carry;
-            if (prevSelectedElementsByUid[uid] && !!prevSelectedElementsByUid[uid].uid) element = prevSelectedElementsByUid[uid];
-            element.site = element.site || $sourceSelect.val();
+            var key = element.key;
+            if (selectedKeys.indexOf(key) === -1) return carry;
+            if (prevSelectedElementsByKey[key] && !!prevSelectedElementsByKey[key].key) element = prevSelectedElementsByKey[key];
             return carry.concat(element);
         }, []);
-        var newSelectedElementUids = newSelectedElements.map(function(element) {
-            return element.uid;
+        var newSelectedElementKeys = newSelectedElements.map(function(element) {
+            return element.key;
         });
         prevSelectedElements.forEach(function(element) {
-            var uid = element.uid;
-            if (selectedUids.indexOf(uid) === -1 || newSelectedElementUids.indexOf(uid) !== -1) return;
+            var key = element.key;
+            if (selectedKeys.indexOf(key) === -1 || newSelectedElementKeys.indexOf(key) !== -1) return;
             newSelectedElements.push(element);
         });
-        $hiddenInput.val(JSON.stringify(newSelectedElements));
         prevSelectedElements = newSelectedElements;
+        var values = selectedKeys.map(function(key) {
+            var temp = key.split(':');
+            return {
+                uid: temp[0],
+                siteUid: temp[1]
+            };
+        });
+        $hiddenInput.val(JSON.stringify(values));
         if (window.draftEditor) window.draftEditor.checkForm();
     });
     $sourceSelect.on('change', function() {
@@ -550,6 +633,6 @@ window.EscapeInfoAdspaceSelectField = function(id, config) {
     });
 };
 
-},{}]},["hBBvr","ce6W9"], "ce6W9", "parcelRequire0d32")
+},{}]},["72Vzw","ce6W9"], "ce6W9", "parcelRequire0d32")
 
 //# sourceMappingURL=adspace-select-field.js.map

@@ -8,13 +8,14 @@
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "start": "parcel watch",
-    "build": "parcel build"
+    "build": "parcel build",
+    "clean": "rimraf ./.parcel-cache"
   },
   "targets": {
     "shoutouts-button.js": {
       "source": [
         "./src/web/assets/src/shoutouts-button.js",
-        "./src/web/assets/src/shoutouts-button.css"
+        "./src/web/assets/src/shoutouts-button.scss"
       ],
       "distDir": "./src/web/assets/dist"
     },
@@ -26,13 +27,16 @@
       "distDir": "./src/web/assets/dist/cp"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "flickity": "^2.3.0"
+  },
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.0.1",
     "autoprefixer": "^10.4.0",
     "concurrently": "^6.5.1",
     "dotenv": "^10.0.0",
     "http-proxy-middleware": "^2.0.1",
-    "parcel": "^2.0.1",
+    "parcel": "^2.2.0",
     "postcss": "^8.4.5",
     "tailwindcss": "^3.0.8"
   }

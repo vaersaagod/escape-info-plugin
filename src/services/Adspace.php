@@ -4,9 +4,12 @@ namespace escape\info\services;
 
 use Craft;
 use craft\base\Component;
+use craft\elements\Entry;
 use craft\helpers\UrlHelper;
 use craft\web\View;
+use escape\info\assetbundles\ShoutoutsButtonBundle;
 use escape\info\EscapeInfo;
+use escape\info\helpers\AdspaceHelper;
 
 /**
  *
@@ -83,15 +86,49 @@ class Adspace extends Component
     }
 
     /**
+     * @param array|null $selectedAds
      * @return string
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
-    public function renderShoutoutsButton(): string
+    public function renderShoutoutsButton(?array $selectedAds = null): string
     {
-        return Craft::$app->getView()->renderTemplate('escape-info/_components/adspace/shoutouts-button.twig', [], View::TEMPLATE_MODE_CP);
+        if (!$selectedAds || empty($selectedAds)) {
+            return '';
+        }
+        // If sandbox mode, render nothing for anonymous users
+        $settings = EscapeInfo::getInstance()->getSettings();
+        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
+            return '';
+        }
+        $allAds = EscapeInfo::getInstance()->adspace->getAds();
+        $allAdsByKey = \array_reduce($allAds, function (array $carry, array $ad) {
+            $carry["{$ad['uid']}:{$ad['siteUid']}"] = $ad;
+            return $carry;
+        }, []);
+        $adsToDisplay = \array_reduce($selectedAds, function (array $carry, array $selectedAd) use ($allAdsByKey) {
+            $key = "{$selectedAd['uid']}:{$selectedAd['siteUid']}";
+            $ad = $allAdsByKey[$key] ?? null;
+            if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
+                return $carry;
+            }
+            $carry[] = \array_merge($ad, [
+                'url' => AdspaceHelper::getUrl("adspace/serve/{$ad['siteUid']}/{$ad['uid']}", [
+                    'container' => AdspaceHelper::CONTAINER_SHOUTOUT,
+                ]),
+            ]);
+            return $carry;
+        }, []);
+        if (empty($adsToDisplay)) {
+            return '';
+        }
+        Craft::$app->getView()->registerAssetBundle(ShoutoutsButtonBundle::class);
+        return Craft::$app->getView()->renderTemplate('escape-info/_components/adspace/shoutouts-button.twig', [
+            'ads' => $adsToDisplay,
+        ], View::TEMPLATE_MODE_CP);
     }
-    
+
 }

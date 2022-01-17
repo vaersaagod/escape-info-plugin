@@ -3,25 +3,24 @@
 namespace escape\info\web\twig\variables;
 
 use Craft;
-use craft\helpers\Template;
 
-use escape\info\assetbundles\ShoutoutsButtonBundle;
 use escape\info\EscapeInfo;
 
 class EscapeInfoVariable
 {
 
     /**
+     * @param array[]|null $selectedAds
      * @return string
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
-    public function renderShoutoutsButton()
+    public function renderShoutoutsButton(?array $selectedAds = null)
     {
-        Craft::$app->getView()->registerAssetBundle(ShoutoutsButtonBundle::class);
-        return Template::raw(EscapeInfo::getInstance()->adspace->renderShoutoutsButton());
+        return EscapeInfo::getInstance()->adspace->renderShoutoutsButton($selectedAds);
     }
 
 }
