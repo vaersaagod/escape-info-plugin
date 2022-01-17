@@ -8,19 +8,21 @@
     </button>
     <div id="shoutouts-popup"
          class="absolute top-full left-1/2 -translate-x-1/2 w-[400px] mt-[10px] max-w-[90vw] hidden">
-        <div class="relative w-full p-[20px]">
-            <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg"
-                 class="absolute w-[12px] h-[9px] left-1/2 -translate-x-1/2 bottom-full">
-                <path d="m6.36 0 5.196 9H.264L6.36 0Z" fill="currentColor"/>
-            </svg>
-            <div
-                class="relative flex w-full h-[520px] bg-white text-black rounded-[5px] z-[999999] shadow-md overflow-hidden -mt-[20px]"
-                data-ads="{{ ads|json_encode|e('js') }}">
-                {% for ad in ads %}
-                    <div class="relative w-full h-full flex-none p-[20px]" data-shoutout>
-                        <iframe class="absolute w-full h-full inset-0 p-0 z-10 text-black overflow-hidden" data-src="{{ ad.url }}"></iframe>
-                    </div>
-                {% endfor %}
+        <div class="relative w-full" data-playground-inner>
+            <div class="relative w-full p-[20px]">
+                <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg"
+                     class="absolute w-[12px] h-[9px] left-1/2 -translate-x-1/2 bottom-full">
+                    <path d="m6.36 0 5.196 9H.264L6.36 0Z" fill="currentColor"/>
+                </svg>
+                <div
+                    class="relative flex w-full h-[520px] bg-white text-black rounded-[5px] z-[999999] shadow-md overflow-hidden -mt-[20px]"
+                    data-playground-ads="{{ ads|json_encode|e('js') }}">
+                    {% for ad in ads %}
+                        <div class="relative w-full h-full flex-none p-[20px]">
+                            <iframe class="absolute w-full h-full inset-0 p-0 z-10 text-black overflow-hidden" data-src="{{ ad.url }}"></iframe>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

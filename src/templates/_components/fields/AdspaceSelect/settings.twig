@@ -1,0 +1,24 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    label: "Limit"|t('app'),
+    instructions: "Limit the number of selectable ads."|t('site'),
+    id: 'limit',
+    name: 'limit',
+    value: field.limit,
+    size: 2,
+    errors: field.getErrors('limit')
+}) }}
+
+{{ forms.checkboxSelectField({
+    label: "Playground Sites"|t('site'),
+    instructions: "The playground sites to select ads from."|t('site'),
+    id: 'siteSources',
+    name: 'siteSources',
+    options: sites|map(site => {
+        label: site.name,
+        value: site.uid
+    }),
+    values: field.siteSources,
+    showAllOption: true,
+}) }}

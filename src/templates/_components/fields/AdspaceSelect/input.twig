@@ -2,15 +2,17 @@
 
 {% do craft.app.view.registerAssetBundle('escape\\info\\assetbundles\\AdspaceSelectFieldBundle') %}
 
-<div class="flex" style="align-items:flex-start;">
+<div class="flex" style="align-items:flex-start;flex-wrap:nowrap;">
 
-    {{ forms.select({
-        options: sites|map(site => {
-            label: site.name,
-            value: site.uid
-        }),
-        value: selectedSite ?? null
-    })|attr({ style: 'width:auto;flex:0 0 auto;' }) }}
+    {% if sites|length > 1 %}
+        {{ forms.select({
+            options: sites|map(site => {
+                label: site.name,
+                value: site.uid
+            }),
+            value: selectedSite ?? null
+        })|attr({ style: 'width:auto;flex:0 0 auto;' }) }}
+    {% endif %}
 
     <div class="flex" style="width:auto;flex: 1 1 auto;">
         {{ forms.text({
@@ -26,7 +28,8 @@
     $(function () {
         new EscapeInfoAdspaceSelectField('#{{ id }}-field', {
             ads: '{{ ads|json_encode|e('js') }}',
-            sites: '{{ sites|json_encode|e('js') }}'
+            sites: '{{ sites|json_encode|e('js') }}',
+            limit: {{ field.limit|default('null') }}
         });
     });
 {% endjs %}

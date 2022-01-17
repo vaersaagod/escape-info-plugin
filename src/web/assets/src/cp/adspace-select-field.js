@@ -7,6 +7,8 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
 
     var ads = JSON.parse(config.ads);
     var sites = JSON.parse(config.sites);
+
+    var limit = config.limit || null;
     var sitesByUid = sites.reduce(function (carry, site) {
         carry[site.uid] = site;
         return carry;
@@ -19,7 +21,7 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
 
     var initialSelectedElements = ($hiddenInput.val() ? JSON.parse($hiddenInput.val()) : []).map(createKey);
 
-    $feedInput.selectize({
+    var options = {
         create: false,
         placeholder: Craft.t('site', 'Search for and select ads'),
         sortField: 'title',
@@ -41,39 +43,37 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
             return element.key;
         }),
         options: initialSelectedElements
-    });
+    };
 
-    var feedElements = null;
+    if (limit) {
+        options.maxItems = limit;
+    }
+
+    $feedInput.selectize(options);
+
+    var feedElements = ads;
     var selectize = $feedInput.get(0).selectize;
 
     function fetchOptions() {
+
         selectize.clearOptions();
-        var siteUid = $sourceSelect.val();
-        feedElements = [];
-        for (var i = 0; i < ads.length; ++i) {
-            if (ads[i].siteUid !== siteUid) {
-                continue;
+
+        if ($sourceSelect.length) {
+            var siteUid = $sourceSelect.val();
+            feedElements = [];
+            for (var i = 0; i < ads.length; ++i) {
+                if (ads[i].siteUid !== siteUid) {
+                    continue;
+                }
+                feedElements.push(ads[i]);
             }
-            feedElements.push(ads[i]);
         }
+
         feedElements.forEach(ad => {
             selectize.addOption(createKey(ad));
         });
+
         selectize.refreshOptions();
-        // var url = Craft.getActionUrl('playground/feeds/get-feed', {
-        //     source: $sourceSelect.val(),
-        //     endpoint: endpoint + '.json'
-        // });
-        // $.ajax({
-        //     url: url,
-        //     success: function (res) {
-        //         feedElements = res;
-        //         res.forEach(function (obj) {
-        //             selectize.addOption(obj);
-        //         });
-        //         selectize.refreshOptions();
-        //     }
-        // });
     }
 
     selectize.on('focus', function () {
@@ -131,8 +131,10 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
         }
     });
 
-    $sourceSelect.on('change', function () {
-        fetchOptions();
-    });
+    if ($sourceSelect.length) {
+        $sourceSelect.on('change', function () {
+            fetchOptions();
+        });
+    }
 
 };

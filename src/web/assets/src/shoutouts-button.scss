@@ -4,6 +4,25 @@
 
 #shoutouts-popup {
 
+    [data-playground-inner] {
+        opacity: 0;
+        transform: translate(0, -10px);
+        transition: opacity 0.3s, transform 0.5s;
+    }
+
+    &.is-open [data-playground-inner] {
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+
+    iframe {
+        opacity: 0;
+        &.lazyloaded {
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+    }
+
     .flickity-enabled {
         position: relative;
     }
