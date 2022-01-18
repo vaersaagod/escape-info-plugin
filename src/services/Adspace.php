@@ -48,7 +48,7 @@ class Adspace extends Component
         if (!$data) {
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data);
+        Craft::$app->getCache()->set($cacheKey, $data, 'P1D');
         return $data;
     }
 
@@ -80,7 +80,7 @@ class Adspace extends Component
         if (!$data) {
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data, 'PT5M');
+        Craft::$app->getCache()->set($cacheKey, $data, 'PT15M');
         return $data;
     }
 
