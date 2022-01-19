@@ -42,6 +42,7 @@
         position: relative;
         width: 100%;
         height: 100%;
+        z-index: 2;
     }
 
     .flickity-slider {
@@ -84,6 +85,7 @@
         list-style: none;
         text-align: center;
         line-height: 1;
+        z-index: 3;
     }
 
     .flickity-page-dots .dot {
