@@ -7,9 +7,8 @@
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "start": "parcel watch",
-    "build": "parcel build",
-    "clean-cache": "rimraf ./.parcel-cache"
+    "start": "parcel watch --no-cache",
+    "build": "parcel build --no-cache"
   },
   "targets": {
     "playground.css": {
