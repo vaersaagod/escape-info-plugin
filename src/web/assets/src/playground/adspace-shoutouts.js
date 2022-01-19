@@ -4,21 +4,29 @@ import Flickity from 'flickity';
 
     const button = document.getElementById('shoutouts-button');
 
-    let flkty;
-
     if (!button) {
         return;
     }
 
     const popup = button.nextElementSibling;
+
+    if (!popup) {
+        return;
+    }
+
     const adsContainer = popup.querySelector('[data-playground-ads]');
     const firstIframe = popup.querySelector('iframe');
+
+    if (!adsContainer || !firstIframe) {
+        return;
+    }
 
     const numAds = popup.querySelectorAll('iframe').length;
 
     let isOpen = false;
     let iframeLoaded = false;
     let scrollPosWhenOpened = null;
+    let flkty;
 
     const viewportWidth = () => Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
@@ -182,9 +190,5 @@ import Flickity from 'flickity';
     firstIframe.addEventListener('lazyloaded', onIframeLoad);
 
     createFlickity();
-
-    popup.querySelectorAll('iframe').forEach((iframe, index) => {
-        iframe.classList.add('lazyload');
-    });
 
 })();

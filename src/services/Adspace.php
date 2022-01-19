@@ -22,14 +22,16 @@ class Adspace extends Component
     /**
      * Get Adspace-enabled Playground sites
      *
+     * @param bool $bypassCache
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Throwable
      */
-    public function getSites(): array
+    public function getSites(bool $bypassCache = false): array
     {
-        $cacheKey = EscapeInfo::getInstance()->getVersion() . '-adspace-sites';
-        if ($cachesEnabled = EscapeInfo::getInstance()->getSettings()->cachesEnabled) {
+        $cacheKey = static::getCacheKey('adspace-sites');
+        $cachesEnabled = !$bypassCache && EscapeInfo::getInstance()->getSettings()->cachesEnabled;
+        if ($cachesEnabled) {
             $cachedData = Craft::$app->getCache()->get($cacheKey);
             if ($cachedData && \is_array($cachedData)) {
                 return $cachedData;
@@ -44,8 +46,10 @@ class Adspace extends Component
             if (Craft::$app->getConfig()->getGeneral()->devMode) {
                 throw $e;
             }
+            return Craft::$app->getCache()->get($cacheKey) ?? [];
         }
         if (!$data) {
+            Craft::$app->getCache()->delete($cacheKey);
             return [];
         }
         Craft::$app->getCache()->set($cacheKey, $data, 'P1D');
@@ -53,14 +57,15 @@ class Adspace extends Component
     }
 
     /**
+     * @param bool $bypassCache
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Throwable
      */
-    public function getAds(): array
+    public function getAds(bool $bypassCache = false): array
     {
-        $cacheKey = EscapeInfo::getInstance()->getVersion() . '-adspace-ads';
-        $cachesEnabled = EscapeInfo::getInstance()->getSettings()->cachesEnabled;
+        $cacheKey = static::getCacheKey('adspace-ads');
+        $cachesEnabled = !$bypassCache && EscapeInfo::getInstance()->getSettings()->cachesEnabled;
         if ($cachesEnabled) {
             $cachedData = Craft::$app->getCache()->get($cacheKey);
             if ($cachedData && \is_array($cachedData)) {
@@ -76,11 +81,13 @@ class Adspace extends Component
             if (Craft::$app->getConfig()->getGeneral()->devMode) {
                 throw $e;
             }
+            return Craft::$app->getCache()->get($cacheKey) ?? [];
         }
         if (!$data) {
+            Craft::$app->getCache()->delete($cacheKey);
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data, 'PT15M');
+        Craft::$app->getCache()->set($cacheKey, $data, 'P1D');
         return $data;
     }
 
@@ -168,6 +175,15 @@ class Adspace extends Component
                 ]),
             ]),
         ], View::TEMPLATE_MODE_CP);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public static function getCacheKey(string $path): string
+    {
+        return 'playground-' . EscapeInfo::getInstance()->getVersion() . '-' . $path;
     }
 
     /**
