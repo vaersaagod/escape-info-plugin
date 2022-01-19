@@ -45,7 +45,7 @@ class AdspaceSelect extends Field
     }
 
     /** @inheritdoc */
-    public function getContentColumnType()
+    public function getContentColumnType(): string
     {
         return Schema::TYPE_TEXT;
     }
