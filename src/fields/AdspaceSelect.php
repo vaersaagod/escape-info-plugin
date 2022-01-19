@@ -129,7 +129,7 @@ class AdspaceSelect extends Field
         $settings = EscapeInfo::getInstance()->getSettings();
         $defaultSite = $settings->defaultSite;
 
-        $ads = EscapeInfo::getInstance()->adspace->getAds(false);
+        $ads = EscapeInfo::getInstance()->adspace->getAds(true);
 
         // Filter by allowed sites
         if ($this->siteSources && \is_array($this->siteSources)) {
