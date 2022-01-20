@@ -35,10 +35,9 @@ import Flickity from 'flickity';
     const scrollTop = () => (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0);
 
     const unveilIframe = () => {
-        if (!firstIframe || firstIframe.classList.contains('lazyloaded') || firstIframe.classList.contains('lazyloading')) {
+        if (!firstIframe || firstIframe.classList.contains('lazyloaded') || firstIframe.classList.contains('lazyloading') || !window.lazySizes) {
             return;
         }
-        const lazySizes = window.lazySizes;
         lazySizes.loader.unveil(firstIframe);
         firstIframe.classList.add('lazyloading');
     };
@@ -90,7 +89,7 @@ import Flickity from 'flickity';
         }
         isOpen = true;
         button.setAttribute('aria-expanded', 'true');
-        popup.classList.remove('hidden');
+        popup.classList.remove('tw-hidden');
         scrollPosWhenOpened = scrollTop();
         positionPopup();
         popup.classList.add('is-open');
@@ -121,7 +120,7 @@ import Flickity from 'flickity';
         popup.classList.remove('is-open');
         afterCloseTimeout = setTimeout(() => {
             afterCloseTimeout = null;
-            popup.classList.add('hidden');
+            popup.classList.add('tw-hidden');
         }, 300);
     };
 

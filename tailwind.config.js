@@ -1,5 +1,6 @@
 module.exports = {
   content: ["./src/templates/_components/playground/**/*.{html,twig}", "./src/web/assets/src/playground/**/*.js"],
+  prefix: 'tw-',
   theme: {
     colors: {
       transparent: 'transparent',
