@@ -1,0 +1,9 @@
+{% if theme %}
+    <style>
+        :root {
+            {% if theme.colorPrimary %}--playground-color-primary: {{ theme.colorPrimary }};{% endif %}
+            {% if theme.colorSecondary %}--playground-color-secondary: {{ theme.colorSecondary }};{% endif %}
+            {% if theme.colorAccent %}--playground-color-accent: {{ theme.colorAccent }};{% endif %}
+        }
+    </style>
+{% endif %}

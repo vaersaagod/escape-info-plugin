@@ -9,6 +9,7 @@ use craft\events\RegisterTemplateRootsEvent;
 use craft\events\TemplateEvent;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\i18n\PhpMessageSource;
 use craft\services\Fields;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\View;
@@ -43,6 +44,14 @@ class EscapeInfo extends Plugin
                 $e->roots[$this->id] = $baseDir;
             }
         });
+
+        // Translations
+        Craft::$app->i18n->translations['escape-info'] = [
+            'class' => PhpMessageSource::class,
+            'sourceLanguage' => 'en',
+            'basePath' => __DIR__ . '/translations',
+            'allowOverrides' => true,
+        ];
 
         // Register services
         $this->setComponents([
@@ -91,6 +100,11 @@ class EscapeInfo extends Plugin
                 }
             );
         }
+
+        Craft::$app->view->hook('escape-info-head', function(array &$context) {
+            $theme = $this->getSettings()->theme;
+            return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/playground-theme.twig', ['theme' => $theme], View::TEMPLATE_MODE_CP);
+        });
 
     }
 

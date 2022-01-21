@@ -29,6 +29,12 @@
       ],
       "distDir": "./src/web/assets/dist/adspace"
     },
+    "adspace-popup.js": {
+      "source": [
+        "./src/web/assets/src/playground/adspace-popup.js"
+      ],
+      "distDir": "./src/web/assets/dist/adspace"
+    },
     "adspace-select-field.js": {
       "source": [
         "./src/web/assets/src/cp/adspace-select-field.js",

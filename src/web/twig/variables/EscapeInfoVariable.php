@@ -25,6 +25,11 @@ class EscapeInfoVariable
         return EscapeInfo::getInstance()->adspace->renderShoutouts($selectedAds);
     }
 
+    public function renderAdspacePopupAds(?array $selectedAds = null): string
+    {
+        return EscapeInfo::getInstance()->adspace->renderPopup($selectedAds);
+    }
+
     /**
      * @param string $adUid
      * @param string $siteUid

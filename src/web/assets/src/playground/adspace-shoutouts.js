@@ -15,13 +15,15 @@ import Flickity from 'flickity';
     }
 
     const adsContainer = popup.querySelector('[data-playground-ads]');
+    const adFrames = popup.querySelectorAll('[data-playground-frame]')
     const firstIframe = popup.querySelector('iframe');
 
     if (!adsContainer || !firstIframe) {
         return;
     }
 
-    const numAds = popup.querySelectorAll('iframe').length;
+    const iframes = popup.querySelectorAll('iframe');
+    const numAds = iframes.length;
 
     let isOpen = false;
     let iframeLoaded = false;
@@ -43,7 +45,7 @@ import Flickity from 'flickity';
     };
 
     const createFlickity = () => {
-        if (flkty || numAds <= 1) {
+        if (flkty) {
             return;
         }
         flkty = new Flickity(adsContainer, {
@@ -51,7 +53,7 @@ import Flickity from 'flickity';
             dragThreshold: 15,
             cellAlign: 'left',
             prevNextButtons: false,
-            pageDots: true,
+            pageDots: numAds > 1,
             draggable: false,
             freeScroll: false,
             freeScrollFriction: 0.045,
@@ -69,12 +71,23 @@ import Flickity from 'flickity';
         }
         adsContainer.style.left = '0px';
         const {left, width} = popup.getBoundingClientRect();
+        const {height} = adsContainer.getBoundingClientRect();
         const viewW = viewportWidth();
-        const leftBound = left + width;
-        const overX = leftBound - viewW;
-        if (overX) {
-            adsContainer.style.left = `-${overX}px`;
+        const leftBound = (left + width + 20);
+        const rightBound = left;
+        if (leftBound > viewW) {
+            adsContainer.style.left = `-${Math.round(leftBound - viewW)}px`;
+        } else if (rightBound < 20) {
+            adsContainer.style.left = `${Math.round(20 - rightBound)}px`;
         }
+        // Scale
+        const scale = width / 400;
+        adFrames.forEach(frame => {
+            frame.style.transformOrigin = 'left top';
+            frame.style.transform = `scale(${scale})`;
+            frame.style.width = `${Math.round(width * (1 / scale))}px`;
+            frame.style.height = `${Math.round(height * (1 / scale))}px`;
+        });
     };
 
     let afterCloseTimeout = null;

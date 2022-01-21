@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- Adds theming via CSS variables
+
+### Improved
+- Improved scaling and positioning for shoutout popup
+
 ## 1.1.4 - 2022-01-19
 
 ### Fixed

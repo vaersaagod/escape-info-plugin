@@ -8,6 +8,7 @@ use craft\elements\Entry;
 use craft\helpers\UrlHelper;
 use craft\web\View;
 use escape\info\assetbundles\AdspaceBannerBundle;
+use escape\info\assetbundles\AdspacePopupBundle;
 use escape\info\assetbundles\AdspaceShoutoutsBundle;
 use escape\info\EscapeInfo;
 use escape\info\helpers\AdspaceHelper;
@@ -105,16 +106,7 @@ class Adspace extends Component
         if (!$selectedAds || empty($selectedAds)) {
             return '';
         }
-        // If sandbox mode, render nothing for anonymous users
-        $settings = EscapeInfo::getInstance()->getSettings();
-        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
-            return '';
-        }
-        $allAds = EscapeInfo::getInstance()->adspace->getAds();
-        $allAdsByKey = \array_reduce($allAds, function (array $carry, array $ad) {
-            $carry["{$ad['uid']}:{$ad['siteUid']}"] = $ad;
-            return $carry;
-        }, []);
+        $allAdsByKey = $this->getAllAdsByKey();
         $adsToDisplay = \array_reduce($selectedAds, function (array $carry, array $selectedAd) use ($allAdsByKey) {
             $key = "{$selectedAd['uid']}:{$selectedAd['siteUid']}";
             $ad = $allAdsByKey[$key] ?? null;
@@ -122,7 +114,7 @@ class Adspace extends Component
             if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
                 return $carry;
             }
-            $carry[] = \array_merge($ad, [
+            $carry[] = \array_merge($selectedAd, [
                 'url' => AdspaceHelper::getUrl("adspace/serve/{$ad['siteUid']}/{$ad['uid']}", [
                     'container' => AdspaceHelper::CONTAINER_SHOUTOUT,
                 ]),
@@ -134,6 +126,35 @@ class Adspace extends Component
         }
         Craft::$app->getView()->registerAssetBundle(AdspaceShoutoutsBundle::class);
         return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-shoutouts.twig', [
+            'ads' => $adsToDisplay,
+        ], View::TEMPLATE_MODE_CP);
+    }
+
+    public function renderPopup(?array $selectedAds = null): string
+    {
+        if (!$selectedAds || empty($selectedAds)) {
+            return '';
+        }
+        $allAdsByKey = $this->getAllAdsByKey();
+        $adsToDisplay = \array_reduce($selectedAds, function (array $carry, array $selectedAd) use ($allAdsByKey) {
+            $key = "{$selectedAd['uid']}:{$selectedAd['siteUid']}";
+            $ad = $allAdsByKey[$key] ?? null;
+            // Only live ads please!
+            if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
+                return $carry;
+            }
+            $carry[] = \array_merge($selectedAd, [
+                'url' => AdspaceHelper::getUrl("adspace/serve/{$ad['siteUid']}/{$ad['uid']}", [
+                    'container' => AdspaceHelper::CONTAINER_POPUP,
+                ]),
+            ]);
+            return $carry;
+        }, []);
+        if (empty($adsToDisplay)) {
+            return '';
+        }
+        Craft::$app->getView()->registerAssetBundle(AdspacePopupBundle::class);
+        return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-popup.twig', [
             'ads' => $adsToDisplay,
         ], View::TEMPLATE_MODE_CP);
     }
@@ -152,17 +173,8 @@ class Adspace extends Component
      */
     public function renderBanner(string $adUid, string $siteUid): string
     {
-        // If sandbox mode, render nothing for anonymous users
-        $settings = EscapeInfo::getInstance()->getSettings();
-        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
-            return '';
-        }
         // Make sure that this is a valid ad
-        $allAds = EscapeInfo::getInstance()->adspace->getAds();
-        $allAdsByKey = \array_reduce($allAds, function (array $carry, array $ad) {
-            $carry["{$ad['uid']}:{$ad['siteUid']}"] = $ad;
-            return $carry;
-        }, []);
+        $allAdsByKey = $this->getAllAdsByKey();
         $ad = $allAdsByKey["$adUid:$siteUid"] ?? null;
         if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
             return '';
@@ -184,6 +196,25 @@ class Adspace extends Component
     public static function getCacheKey(string $path): string
     {
         return 'playground-' . EscapeInfo::getInstance()->getVersion() . '-' . $path;
+    }
+
+    /**
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Throwable
+     */
+    protected function getAllAdsByKey(): array
+    {
+        // If sandbox mode, render nothing for anonymous users
+        $settings = EscapeInfo::getInstance()->getSettings();
+        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
+            return [];
+        }
+        $allAds = EscapeInfo::getInstance()->adspace->getAds();
+        return \array_reduce($allAds, function (array $carry, array $ad) {
+            $carry["{$ad['uid']}:{$ad['siteUid']}"] = $ad;
+            return $carry;
+        }, []);
     }
 
     /**

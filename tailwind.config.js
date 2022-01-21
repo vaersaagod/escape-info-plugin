@@ -10,7 +10,10 @@ module.exports = {
         light: '#F0F4F6'
       },
       white: '#ffffff',
-      black: '#000000'
+      black: '#000000',
+      primary: 'var(--playground-color-primary, black)',
+      secondary: 'var(--playground-color-secondary, black)',
+      accent: 'var(--playground-color-accent, black)'
     },
     extend: {
       height: {

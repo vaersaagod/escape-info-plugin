@@ -20,4 +20,7 @@ class Settings extends Model
     /** @var string|null */
     public ?string $defaultSite = null;
 
+    /** @var array */
+    public array $theme;
+
 }
