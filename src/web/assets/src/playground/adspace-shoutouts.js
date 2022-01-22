@@ -2,6 +2,8 @@ import Flickity from 'flickity';
 
 (() => {
 
+    const storageKey = 'playground-seen-shoutouts';
+
     const button = document.getElementById('shoutouts-button');
 
     if (!button) {
@@ -29,6 +31,19 @@ import Flickity from 'flickity';
     let iframeLoaded = false;
     let scrollPosWhenOpened = null;
     let flkty;
+
+    const getSeenAds = () => window.localStorage ? (window.localStorage.getItem(storageKey) || '').split(',').filter(value => !!value) : [];
+
+    const seenAd = key => {
+        if (!window.localStorage) {
+            return;
+        }
+        const seenAds = getSeenAds();
+        if (seenAds.indexOf(key) > -1) {
+            return;
+        }
+        window.localStorage.setItem(storageKey, seenAds.concat(key).join(','));
+    };
 
     const viewportWidth = () => Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
@@ -60,7 +75,15 @@ import Flickity from 'flickity';
             wrapAround: true,
             autoPlay: 3000,
             adaptiveHeight: false,
-            setGallerySize: false
+            setGallerySize: false,
+            on: {
+                select: function () {
+                    if (!isOpen) {
+                        return;
+                    }
+                    seenAd(this.selectedCell.element.dataset.playgroundAd);
+                }
+            }
         });
         flkty.pausePlayer();
     };
@@ -200,6 +223,16 @@ import Flickity from 'flickity';
     document.body.addEventListener('click', onBodyClick);
 
     firstIframe.addEventListener('lazyloaded', onIframeLoad);
+
+    const dot = button.querySelector('[data-playground-dot]');
+    if (dot) {
+        const adKeys = [...popup.querySelectorAll('[data-playground-ad]')].map(ad => ad.dataset.playgroundAd);
+        const seenAds = getSeenAds();
+        const hasUnseenAds = !!adKeys.filter(key => seenAds.indexOf(key) === -1).length;
+        if (hasUnseenAds) {
+            dot.classList.remove('tw-hidden');
+        }
+    }
 
     createFlickity();
 
