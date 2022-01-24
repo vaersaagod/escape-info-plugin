@@ -1,5 +1,11 @@
 (() => {
 
+    if (window.sessionStorage && !!window.sessionStorage.getItem('playground-has-seen-popup')) {
+        return;
+    }
+
+    //window.sessionStorage.setItem('playground-has-seen-popup', true);
+
     const storageKey = 'playground-dismissed-popups';
     const focusableQuery = 'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type="text"]:not([disabled]), input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled]), select:not([disabled])';
     const popup = document.getElementById('adspace-popup');
@@ -45,7 +51,15 @@
         iframe.style.height = `${Math.round(height * (1 / scale))}px`;
     };
 
-    const positionPopup = () => {};
+    const positionPopup = position => {
+        // TODO
+        // if (position === 'bottomLeft') {
+        //     popup.classList.remove('tw-justify-center');
+        //     popup.classList.remove('tw-items-center');
+        //     popup.classList.add('tw-justify-start');
+        //     popup.classList.add('tw-items-end');
+        // }
+    };
 
     const dismiss = () => {
         if (!isVisible) {
@@ -103,7 +117,7 @@
 
     const onLoad = () => {
         reveal();
-        positionPopup();
+        positionPopup(ad.position || 'center');
         scalePopup();
         iframe.removeEventListener('load', onLoad);
     };

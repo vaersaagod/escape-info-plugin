@@ -130,6 +130,17 @@ class Adspace extends Component
         ], View::TEMPLATE_MODE_CP);
     }
 
+    /**
+     * @param array|null $selectedAds
+     * @return string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Throwable
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     */
     public function renderPopup(?array $selectedAds = null): string
     {
         if (!$selectedAds || empty($selectedAds)) {

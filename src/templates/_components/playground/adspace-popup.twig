@@ -2,7 +2,7 @@
 
     {% set playgroundSettings = craft.app.plugins.plugin('escape-info').settings %}
 
-    <div id="adspace-popup" class="tw-fixed tw-z-[9999999] tw-flex tw-justify-center tw-items-center tw-inset-0 tw-w-full tw-h-screen tw-hidden" data-ads="{{ ads|json_encode }}" role="dialog" aria-label="{{ 'Offers and news from {siteName}'|t('escape-info', { siteName: playgroundSettings.siteName|default('Escape') }) }}">
+    <div id="adspace-popup" class="tw-fixed tw-z-[9999999] tw-justify-center tw-items-center tw-flex tw-inset-0 tw-w-full tw-h-screen tw-hidden" data-ads="{{ ads|json_encode }}" role="dialog" aria-label="{{ 'Offers and news from {siteName}'|t('escape-info', { siteName: playgroundSettings.siteName|default('Escape') }) }}">
         <div class="tw-relative tw-z-[2] tw-max-w-[400px] tw-m-[20px]" data-playground-popup>
             <button class="tw-flex tw-justify-center tw-items-center tw-block tw-w-[31px] tw-h-[31px] tw-p-[6px] tw-absolute tw-left-0 tw-top-0 tw--ml-[12px] tw--mt-[12px] tw-z-[2] tw-rounded-[100%] tw-appearance-none tw-bg-secondary overflow-hidden" data-playground-close aria-label="{{ 'Click to close'|t('escape-info') }}">
                 <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" class="tw-block tw-w-full tw-h-full tw-flex-none"><path d="M1.3 18.586a.888.888 0 0 1-.627-1.515L17.071.673a.888.888 0 0 1 1.255 1.255L1.928 18.326a.885.885 0 0 1-.627.26Z" fill="#fff"/><path d="M17.698 18.586a.886.886 0 0 1-.627-.26L.673 1.928A.887.887 0 0 1 1.928.673l16.398 16.398a.887.887 0 0 1-.628 1.515Z" fill="#fff"/></svg>
