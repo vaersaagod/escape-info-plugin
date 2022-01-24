@@ -142,5 +142,26 @@
 }
 
 #adspace-popup {
-
+    [data-playground-close]:active {
+        transform: scale(0.9, 0.9);
+    }
+    [data-playground-popup] {
+        width: calc(100vw - 40px);
+        opacity: 0;
+        transform: translate(0, -5px);
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    &.is-visible [data-playground-popup] {
+        opacity: 1;
+        transform: none;
+        transition: opacity 0.3s 0.1s, transform 0.5s 0.1s;
+    }
+    [data-playground-overlay] {
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    &.is-visible [data-playground-overlay] {
+        opacity: 1;
+        transition: opacity 0.5s;
+    }
 }

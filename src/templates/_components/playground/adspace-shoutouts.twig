@@ -11,7 +11,10 @@
             <span class="tw-block tw-absolute tw-top-[8px] tw-right-[5px] tw-bg-accent tw-w-[10px] tw-h-[10px] tw-rounded-[100%] tw-hidden" aria-hidden="true" data-playground-dot></span>
         </button>
         <div id="shoutouts-popup"
-             class="tw-absolute tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-mt-[10px] tw-max-w-[400px] tw-hidden">
+             class="tw-absolute tw-top-full tw-left-1/2 tw--translate-x-1/2 tw-mt-[10px] tw-max-w-[400px] tw-hidden"
+             role="dialog"
+             aria-label="{{ 'Offers and news from {siteName}'|t('escape-info', { siteName: playgroundSettings.siteName|default('Escape') }) }}"
+        >
             <div class="tw-absolute tw-inset-0 tw-w-full" data-playground-inner>
                 <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg"
                      class="tw-absolute tw-w-[12px] tw-h-[9px] tw-left-1/2 tw--translate-x-1/2 tw-bottom-full">

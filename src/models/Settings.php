@@ -23,4 +23,7 @@ class Settings extends Model
     /** @var array */
     public array $theme;
 
+    /** @var string */
+    public string $siteName;
+
 }
