@@ -116,15 +116,7 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
 
         prevSelectedElements = newSelectedElements;
 
-        var values = selectedKeys.map(key => {
-            var temp = key.split(':');
-            return {
-                uid: temp[0],
-                siteUid: temp[1]
-            };
-        });
-
-        $hiddenInput.val(JSON.stringify(values));
+        $hiddenInput.val(JSON.stringify(newSelectedElements));
 
         if (window.draftEditor) {
             window.draftEditor.checkForm();

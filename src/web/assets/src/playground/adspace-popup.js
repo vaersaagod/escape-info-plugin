@@ -1,32 +1,23 @@
 (() => {
 
-    if (window.sessionStorage && !!window.sessionStorage.getItem('playground-has-seen-popup')) {
+    const STORAGE_KEY_DISMISSED_ADS = 'playground-dismissed-popups';
+    const STORAGE_KEY_HAS_SEEN_POPUP = 'playground-has-seen-popup';
+
+    if (window.sessionStorage && !!window.sessionStorage.getItem(STORAGE_KEY_HAS_SEEN_POPUP)) {
         return;
     }
 
-    window.sessionStorage.setItem('playground-has-seen-popup', true);
-
-    const storageKey = 'playground-dismissed-popups';
     const focusableQuery = 'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type="text"]:not([disabled]), input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled]), select:not([disabled])';
-    const popup = document.getElementById('adspace-popup');
-    const inner = popup ? popup.firstElementChild : null;
 
     let isVisible = false;
-    let ad = null;
+    let ad;
     let activeElementBeforeOpen;
+    let popup;
+    let inner;
+    let iframe;
+    let closeBtn;
 
-    if (!popup || !inner) {
-        return;
-    }
-
-    const iframe = inner.querySelector('iframe');
-    if (!iframe) {
-        return;
-    }
-
-    const closeBtn = popup.querySelector('[data-playground-close]');
-
-    const getDismissedAds = () => window.localStorage ? (window.localStorage.getItem(storageKey) || '').split(',').filter(value => !!value) : [];
+    const getDismissedAds = () => window.localStorage ? (window.localStorage.getItem(STORAGE_KEY_DISMISSED_ADS) || '').split(',').filter(value => !!value) : [];
 
     const dismissAd = key => {
         if (!window.localStorage) {
@@ -36,7 +27,7 @@
         if (dismissedAds.indexOf(key) > -1) {
             return;
         }
-        window.localStorage.setItem(storageKey, dismissedAds.concat(key).join(','));
+        window.localStorage.setItem(STORAGE_KEY_DISMISSED_ADS, dismissedAds.concat(key).join(','));
     };
 
     const scalePopup = () => {
@@ -94,23 +85,6 @@
         }, 0);
     };
 
-    const ads = JSON.parse(popup.dataset.ads) || [];
-
-    // Get ad to render
-    const dismissedAds = getDismissedAds();
-
-    for (let i = 0; i < ads.length; i += 1) {
-        const key = `${ads[i].uid}:${ads[i].siteUid}`;
-        if (dismissedAds.indexOf(key) === -1) {
-            ad = ads[i];
-            break;
-        }
-    }
-
-    if (!ad) {
-        return;
-    }
-
     const onResize = () => {
         scalePopup();
     };
@@ -120,6 +94,9 @@
         //positionPopup(ad.position || 'center');
         scalePopup();
         iframe.removeEventListener('load', onLoad);
+        if (window.sessionStorage) {
+            window.sessionStorage.setItem(STORAGE_KEY_HAS_SEEN_POPUP, true);
+        }
     };
 
     const onBodyClick = e => {
@@ -149,12 +126,91 @@
         }
     };
 
-    window.addEventListener('resize', onResize);
-    document.body.addEventListener('click', onBodyClick);
-    document.body.addEventListener('focusin', onBodyFocus);
-    document.body.addEventListener('keyup', onBodyKeyUp);
+    const createPopup = (placeholderNode, html) => {
 
-    iframe.addEventListener('load', onLoad);
-    iframe.setAttribute('src', ad.url);
+        const node = document.createElement('div');
+        node.innerHTML = html;
+        popup = node.firstElementChild;
+
+        // Figure out if there's a viable ad to display
+        const allAds = JSON.parse(popup.dataset.ads) || [];
+        const dismissedAds = getDismissedAds();
+
+        for (let i = 0; i < allAds.length; i += 1) {
+            const key = `${allAds[i].uid}:${allAds[i].siteUid}`;
+            if (dismissedAds.indexOf(key) === -1) {
+                ad = allAds[i];
+                break;
+            }
+        }
+
+        if (!ad) {
+            return;
+        }
+
+        placeholderNode.replaceWith(popup);
+        inner = popup.firstElementChild;
+        iframe = inner.querySelector('iframe')
+        closeBtn = popup.querySelector('[data-playground-close]');
+
+        window.addEventListener('resize', onResize);
+        document.body.addEventListener('click', onBodyClick);
+        document.body.addEventListener('focusin', onBodyFocus);
+        document.body.addEventListener('keyup', onBodyKeyUp);
+
+        iframe.addEventListener('load', onLoad);
+        iframe.setAttribute('src', ad.url);
+
+    };
+
+    const init = () => {
+
+        let placeholderNode;
+        let placeholderData;
+
+        try {
+            const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_COMMENT, () => NodeFilter.FILTER_ACCEPT, false);
+            while (placeholderNode = iterator.nextNode()) {
+                const text = placeholderNode.nodeValue.toString().trim();
+                if (text.startsWith('playground-popup:')) {
+                    placeholderData = JSON.parse(text.split('playground-popup:')[1] || '');
+                    break;
+                }
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+
+        if (!placeholderData) {
+            return;
+        }
+
+        const request = new XMLHttpRequest();
+        request.open('POST', '/playground/get-popup-html', true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader('Accept', 'application/json');
+
+        request.onreadystatechange = function () {
+            if (this.readyState != 4 || this.status !== 200 || !this.responseText) {
+                return;
+            }
+            try {
+                const data = JSON.parse(this.responseText);
+                const { html } = data || {};
+                if (!html) {
+                    return;
+                }
+                createPopup(placeholderNode, html);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        request.send(JSON.stringify(placeholderData));
+
+    };
+
+    window.addEventListener('DOMContentLoaded', init);
 
 })();

@@ -6,14 +6,17 @@ use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterUrlRulesEvent;
 use craft\events\TemplateEvent;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\i18n\PhpMessageSource;
 use craft\services\Fields;
 use craft\web\twig\variables\CraftVariable;
+use craft\web\UrlManager;
 use craft\web\View;
 
+use escape\info\assetbundles\AdspaceBannersBundle;
 use escape\info\fields\AdspaceSelect;
 use escape\info\models\Settings;
 use escape\info\services\Adspace;
@@ -33,7 +36,7 @@ class EscapeInfo extends Plugin
      */
     public function init()
     {
-        
+
         Craft::setAlias('@escapeinfoplugin', __DIR__);
 
         parent::init();
@@ -69,42 +72,28 @@ class EscapeInfo extends Plugin
         );
 
         // Register Twig extension
-        //Craft::$app->getView()->registerTwigExtension(new EscapeInfoTwigExtension());
+        Craft::$app->getView()->registerTwigExtension(new EscapeInfoTwigExtension());
 
         // Register custom fields
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function (RegisterComponentTypesEvent $event) {
             $event->types[] = AdspaceSelect::class;
         });
 
-        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
-        if ($isSiteRequest) {
-            Event::on(
-                View::class,
-                View::EVENT_AFTER_RENDER_PAGE_TEMPLATE,
-                function (TemplateEvent $event) {
-                    \preg_match_all('/(<!-- playground-banner:)(.*)( -->)/', $event->output, $matches);
-                    if (!empty($matches[0] ?? null)) {
-                        for ($i = 0; $i < \count($matches[0]); $i++) {
-                            $match = $matches[0][$i];
-                            $data = Json::decodeIfJson($matches[2][$i]);
-                            $ad = $data['ad'];
-                            $attributes = $data['attributes'] ?? [];
-                            try {
-                                $html = Html::modifyTagAttributes(EscapeInfo::getInstance()->adspace->renderBanner($ad['uid'], $ad['siteUid']), $attributes);
-                            } catch (\Throwable $e) {
-                                $html = '';
-                            }
-                            $event->output = \str_replace($match, $html, $event->output);
-                        }
-                    }
-                }
-            );
-        }
-
-        Craft::$app->view->hook('escape-info-head', function(array &$context) {
+        // Add theme CSS
+        Craft::$app->view->hook('escape-info-head', function (array &$context) {
             $theme = $this->getSettings()->theme;
             return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/playground-theme.twig', ['theme' => $theme], View::TEMPLATE_MODE_CP);
         });
+
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
+            function (RegisterUrlRulesEvent $event) {
+                $event->rules['playground/get-shoutouts-html'] = 'escape-info/adspace/get-shoutouts-html';
+                $event->rules['playground/get-popup-html'] = 'escape-info/adspace/get-popup-html';
+                $event->rules['playground/get-banner-html'] = 'escape-info/adspace/get-banner-html';
+            }
+        );
 
     }
 

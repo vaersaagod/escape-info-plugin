@@ -7,7 +7,7 @@ use craft\base\Component;
 use craft\elements\Entry;
 use craft\helpers\UrlHelper;
 use craft\web\View;
-use escape\info\assetbundles\AdspaceBannerBundle;
+use escape\info\assetbundles\AdspaceBannersBundle;
 use escape\info\assetbundles\AdspacePopupBundle;
 use escape\info\assetbundles\AdspaceShoutoutsBundle;
 use escape\info\EscapeInfo;
@@ -53,7 +53,7 @@ class Adspace extends Component
             Craft::$app->getCache()->delete($cacheKey);
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data, 'P1D');
+        Craft::$app->getCache()->set($cacheKey, $data, 'PT1H');
         return $data;
     }
 
@@ -88,7 +88,7 @@ class Adspace extends Component
             Craft::$app->getCache()->delete($cacheKey);
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data, 'P1D');
+        Craft::$app->getCache()->set($cacheKey, $data, 'PT5M');
         return $data;
     }
 
@@ -101,7 +101,7 @@ class Adspace extends Component
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function renderShoutouts(?array $selectedAds = null): string
+    public function renderShoutoutsPopup(?array $selectedAds = null): string
     {
         if (!$selectedAds || empty($selectedAds)) {
             return '';
@@ -124,8 +124,7 @@ class Adspace extends Component
         if (empty($adsToDisplay)) {
             return '';
         }
-        Craft::$app->getView()->registerAssetBundle(AdspaceShoutoutsBundle::class);
-        return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-shoutouts.twig', [
+        return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-shoutouts-popup.twig', [
             'ads' => $adsToDisplay,
         ], View::TEMPLATE_MODE_CP);
     }
@@ -190,7 +189,6 @@ class Adspace extends Component
         if (!$ad || $ad['status'] !== Entry::STATUS_LIVE) {
             return '';
         }
-        Craft::$app->getView()->registerAssetBundle(AdspaceBannerBundle::class);
         return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-banner.twig', [
             'ad' => \array_merge($ad, [
                 'url' => AdspaceHelper::getUrl("adspace/serve/{$ad['siteUid']}/{$ad['uid']}", [

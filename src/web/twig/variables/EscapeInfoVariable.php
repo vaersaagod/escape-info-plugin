@@ -6,13 +6,17 @@ use Craft;
 
 use craft\helpers\Json;
 use craft\helpers\Template;
+use craft\web\View;
+
+use escape\info\assetbundles\AdspacePopupBundle;
+use escape\info\assetbundles\AdspaceShoutoutsBundle;
 use escape\info\EscapeInfo;
 
 class EscapeInfoVariable
 {
 
     /**
-     * @param array[]|null $selectedAds
+     * @param array|null $selectedAds
      * @return string
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
@@ -20,14 +24,36 @@ class EscapeInfoVariable
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function renderAdspaceShoutouts(?array $selectedAds = null): string
+    public function renderAdspaceShoutoutsButton(?array $selectedAds = null): string
     {
-        return EscapeInfo::getInstance()->adspace->renderShoutouts($selectedAds);
+        if (empty($selectedAds)) {
+            return '';
+        }
+        Craft::$app->getView()->registerAssetBundle(AdspaceShoutoutsBundle::class);
+        return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-shoutouts-button.twig', [
+            'ads' => $selectedAds,
+        ], View::TEMPLATE_MODE_CP);
     }
 
-    public function renderAdspacePopupAds(?array $selectedAds = null): string
+    /**
+     * @param array|null $selectedAds
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function renderAdspacePopupPlaceholder(?array $selectedAds = null): string
     {
-        return EscapeInfo::getInstance()->adspace->renderPopup($selectedAds);
+        // Render a placeholder as an HTML comment
+        $data = Json::encode([
+            'ads' => \array_map(function (array $ad) {
+                return [
+                    'uid' => $ad['uid'],
+                    'siteUid' => $ad['siteUid'],
+                    'position' => $ad['position'] ?? 'center',
+                ];
+            }, $selectedAds),
+        ]);
+        Craft::$app->getView()->registerAssetBundle(AdspacePopupBundle::class);
+        return Template::raw("<!-- playground-popup:$data -->");
     }
 
     /**

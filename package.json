@@ -23,9 +23,9 @@
       ],
       "distDir": "./src/web/assets/dist/adspace"
     },
-    "adspace-banner.js": {
+    "adspace-banners.js": {
       "source": [
-        "./src/web/assets/src/playground/adspace-banner.js"
+        "./src/web/assets/src/playground/adspace-banners.js"
       ],
       "distDir": "./src/web/assets/dist/adspace"
     },
