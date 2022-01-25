@@ -4,7 +4,7 @@
         return;
     }
 
-    //window.sessionStorage.setItem('playground-has-seen-popup', true);
+    window.sessionStorage.setItem('playground-has-seen-popup', true);
 
     const storageKey = 'playground-dismissed-popups';
     const focusableQuery = 'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type="text"]:not([disabled]), input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled]), select:not([disabled])';
@@ -117,7 +117,7 @@
 
     const onLoad = () => {
         reveal();
-        positionPopup(ad.position || 'center');
+        //positionPopup(ad.position || 'center');
         scalePopup();
         iframe.removeEventListener('load', onLoad);
     };
