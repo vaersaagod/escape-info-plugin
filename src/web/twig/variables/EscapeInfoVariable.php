@@ -29,6 +29,11 @@ class EscapeInfoVariable
         if (empty($selectedAds)) {
             return '';
         }
+        // If sandbox mode, render nothing for anonymous users
+        $settings = EscapeInfo::getInstance()->getSettings();
+        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
+            return '';
+        }
         Craft::$app->getView()->registerAssetBundle(AdspaceShoutoutsBundle::class);
         return Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-shoutouts-button.twig', [
             'ads' => $selectedAds,
@@ -42,6 +47,14 @@ class EscapeInfoVariable
      */
     public function renderAdspacePopupPlaceholder(?array $selectedAds = null): string
     {
+        if (empty($selectedAds)) {
+            return '';
+        }
+        // If sandbox mode, render nothing for anonymous users
+        $settings = EscapeInfo::getInstance()->getSettings();
+        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
+            return '';
+        }
         // Render a placeholder as an HTML comment
         $data = Json::encode([
             'ads' => \array_map(function (array $ad) {
@@ -64,6 +77,11 @@ class EscapeInfoVariable
      */
     public function renderAdspaceBannerPlaceholder(string $adUid, string $siteUid, array $attributes = []): string
     {
+        // If sandbox mode, render nothing for anonymous users
+        $settings = EscapeInfo::getInstance()->getSettings();
+        if ($settings->sandboxMode && !Craft::$app->getUser()->getId()) {
+            return '';
+        }
         // Render a placeholder as an HTML comment
         $data = Json::encode([
             'ad' => [
