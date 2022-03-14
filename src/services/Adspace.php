@@ -5,13 +5,13 @@ namespace escape\info\services;
 use Craft;
 use craft\base\Component;
 use craft\elements\Entry;
-use craft\helpers\UrlHelper;
+use craft\helpers\ConfigHelper;
 use craft\web\View;
-use escape\info\assetbundles\AdspaceBannersBundle;
+
 use escape\info\assetbundles\AdspacePopupBundle;
-use escape\info\assetbundles\AdspaceShoutoutsBundle;
 use escape\info\EscapeInfo;
 use escape\info\helpers\AdspaceHelper;
+
 use GuzzleHttp\Client;
 
 /**
@@ -53,7 +53,7 @@ class Adspace extends Component
             Craft::$app->getCache()->delete($cacheKey);
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data, 'PT1H');
+        Craft::$app->getCache()->set($cacheKey, $data, ConfigHelper::durationInSeconds('PT1H'));
         return $data;
     }
 
@@ -88,7 +88,7 @@ class Adspace extends Component
             Craft::$app->getCache()->delete($cacheKey);
             return [];
         }
-        Craft::$app->getCache()->set($cacheKey, $data, 'PT5M');
+        Craft::$app->getCache()->set($cacheKey, $data, ConfigHelper::durationInSeconds('PT5M'));
         return $data;
     }
 
