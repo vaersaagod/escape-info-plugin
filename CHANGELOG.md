@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.5.1 - 2023-05-03
+### Improved
+- Ad meta data is no longer stored with the Adspace Select field JSON  
+
 ## 1.5.0 - 2023-05-03
 ### Added
 - Added support for rendering Adspace banners in a wrapper
