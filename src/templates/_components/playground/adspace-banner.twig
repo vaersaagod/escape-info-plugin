@@ -7,9 +7,18 @@
         {% set ratios = metaData.ratios|default %}
         {% set defaultRatio = ratios.default|default(16/9) %}
 
-        <div class="adspace-banner tw-w-full tw-relative tw-overflow-hidden tw-bg-gray-light" style="aspect-ratio:{{ defaultRatio }} / 1;">
-            <div class="tw-relative tw-w-full tw-h-full">
-                <iframe class="tw-absolute tw-w-full tw-h-full tw-inset-0 tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-ratios="{{ ratios|json_encode }}" data-expand="1000"></iframe>
+        {% set renderFullWidth = metaData.settings.renderFullWidth ?? true %}
+        {% if not renderFullWidth %}
+            {% set wrapperClassName = 'wrapper' %}
+        {% else %}
+            {% set wrapperClassName = null %}
+        {% endif %}
+
+        <div class="adspace-banner tw-w-full tw-relative tw-overflow-hidden">
+            <div class="tw-relative tw-w-full{{ wrapperClassName ? " #{wrapperClassName}" }}">
+                <div class="tw-relative tw-w-full tw-bg-gray-light">
+                    <iframe class="tw-w-full tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-ratios="{{ ratios|json_encode }}" data-expand="1000" style="aspect-ratio:{{ defaultRatio }} / 1;"></iframe>
+                </div>
             </div>
         </div>
 

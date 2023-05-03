@@ -28,7 +28,7 @@
             }
             const ratio = ratios[currentBreakpoint] || null;
             if (ratio) {
-                banner.style.aspectRatio = ratio;
+                iframe.style.aspectRatio = ratio;
             }
         });
     };
