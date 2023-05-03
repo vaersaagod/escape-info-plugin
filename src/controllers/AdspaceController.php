@@ -74,6 +74,7 @@ class AdspaceController extends Controller
         if (!empty($attributes)) {
             $html = Html::modifyTagAttributes($html, $attributes);
         }
+        // TODO Remove HTML comments (?)
         return $this->asJson([
             'html' => \trim($html),
         ]);

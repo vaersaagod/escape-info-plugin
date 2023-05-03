@@ -11,6 +11,25 @@
 }) }}
 
 {{ forms.checkboxSelectField({
+    label: "Adspace Containers"|t('site'),
+    instructions: "The adspace containers to select ads from."|t('site'),
+    id: 'containers',
+    name: 'containers',
+    options: [{
+        label: 'Banner',
+        value: 'banner'
+    }, {
+        label: 'Shoutout',
+        value: 'shoutout'
+    }, {
+        label: 'Popup',
+        value: 'popup'
+    }],
+    values: field.containers,
+    showAllOption: true,
+}) }}
+
+{{ forms.checkboxSelectField({
     label: "Playground Sites"|t('site'),
     instructions: "The playground sites to select ads from."|t('site'),
     id: 'siteSources',

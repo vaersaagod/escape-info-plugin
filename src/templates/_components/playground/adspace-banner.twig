@@ -1,5 +1,18 @@
-<div class="adspace-banner tw-w-full tw-h-[90vh] tw-relative tw-overflow-hidden tw-bg-gray-light">
-    <div class="tw-relative tw-w-full tw-h-full">
-        <iframe class="tw-absolute tw-w-full tw-h-full tw-inset-0 tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-expand="1000"></iframe>
-    </div>
-</div>
+{% apply spaceless %}
+
+    {% set metaData = ad.metaData.banner|default(null) %}
+
+    {% if metaData %}
+
+        {% set ratios = metaData.ratios|default %}
+        {% set defaultRatio = ratios.default|default(16/9) %}
+
+        <div class="adspace-banner tw-w-full tw-relative tw-overflow-hidden tw-bg-gray-light" style="aspect-ratio:{{ defaultRatio }} / 1;">
+            <div class="tw-relative tw-w-full tw-h-full">
+                <iframe class="tw-absolute tw-w-full tw-h-full tw-inset-0 tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-ratios="{{ ratios|json_encode }}" data-expand="1000"></iframe>
+            </div>
+        </div>
+
+    {% endif %}
+
+{% endapply %}
