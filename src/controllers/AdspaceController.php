@@ -15,7 +15,7 @@ class AdspaceController extends Controller
 {
 
     /** @var bool */
-    public $allowAnonymous = true;
+    public array|int|bool $allowAnonymous = true;
 
     /** @var bool */
     public $enableCsrfValidation = false;

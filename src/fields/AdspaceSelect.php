@@ -57,7 +57,7 @@ class AdspaceSelect extends Field
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Throwable
      */
-    public function normalizeValue($value, ElementInterface $element = null): array
+    public function normalizeValue(mixed $value, ?\craft\base\ElementInterface $element = null): array
     {
 
         if (is_string($value) && !empty($value)) {
@@ -85,7 +85,7 @@ class AdspaceSelect extends Field
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?\craft\base\ElementInterface $element = null): string
     {
 
         $id = Html::id($this->handle);
@@ -138,7 +138,7 @@ class AdspaceSelect extends Field
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         $sites = EscapeInfo::getInstance()->adspace->getSites();
         return Craft::$app->getView()->renderTemplate('escape-info/_components/fields/AdspaceSelect/settings.twig', [
