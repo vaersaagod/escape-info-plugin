@@ -11,6 +11,7 @@ use craft\web\View;
 use escape\info\assetbundles\AdspacePopupBundle;
 use escape\info\assetbundles\AdspaceShoutoutsBundle;
 use escape\info\EscapeInfo;
+use escape\info\models\Settings;
 
 class EscapeInfoVariable
 {
@@ -91,6 +92,14 @@ class EscapeInfoVariable
             'attributes' => $attributes,
         ]);
         return Template::raw("<!-- playground-banner:$data -->");
+    }
+
+    /**
+     * @return Settings
+     */
+    public function getSettings(): Settings
+    {
+        return EscapeInfo::getInstance()->getSettings();
     }
 
 }

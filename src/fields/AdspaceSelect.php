@@ -8,8 +8,8 @@ use craft\base\Field;
 use craft\helpers\Html;
 use craft\helpers\Json;
 
-use craft\helpers\UrlHelper;
 use escape\info\EscapeInfo;
+
 use yii\db\Schema;
 
 class AdspaceSelect extends Field
@@ -100,13 +100,24 @@ class AdspaceSelect extends Field
         // Get all ads from Playground
         $ads = EscapeInfo::getInstance()->adspace->getAds();
 
-        // Filter by allowed sites
-        if ($this->siteSources && \is_array($this->siteSources)) {
-            $sites = array_values(\array_filter($sites, function (array $site) {
-                return \in_array($site['uid'], $this->siteSources);
+        // Filter by container
+        if ($this->containers && \is_array($this->containers)) {
+            $ads = array_values(array_filter($ads, function (array $ad) {
+                $adMetaData = $ad['metaData'] ?? [];
+                $adContainers = array_filter(array_keys($adMetaData), static function (string $key) use ($adMetaData) {
+                    return !empty($adMetaData[$key]);
+                });
+                return !empty(array_intersect($this->containers, $adContainers));
             }));
-            $ads = \array_values(\array_filter($ads, function (array $ad) {
-                return \in_array($ad['siteUid'], $this->siteSources);
+        }
+
+        // Filter by allowed sites
+        if ($this->siteSources && is_array($this->siteSources)) {
+            $sites = array_values(array_filter($sites, function (array $site) {
+                return in_array($site['uid'], $this->siteSources);
+            }));
+            $ads = array_values(array_filter($ads, function (array $ad) {
+                return in_array($ad['siteUid'], $this->siteSources);
             }));
         }
 

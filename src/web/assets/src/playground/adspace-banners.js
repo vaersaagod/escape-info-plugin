@@ -1,9 +1,45 @@
 (() => {
 
+    let banners = [];
+
+    const onResize = () => {
+        banners.forEach(banner => {
+            const iframe = banner.querySelector('iframe');
+            const { width: iframeWidth } = iframe.getBoundingClientRect();
+            let ratios = null;
+            try {
+                ratios = JSON.parse(iframe.dataset.ratios);
+            } catch (error) {}
+            if (!ratios) {
+                return;
+            }
+            const breakpoints = Object
+                .keys(ratios)
+                .reduce((carry, breakpoint) => breakpoint !== 'default' ? carry.concat(breakpoint) : carry, [])
+                .sort()
+                .reverse();
+            let currentBreakpoint = 'default';
+            for (let i = 0; i < breakpoints.length; ++i) {
+                const pixels = parseInt(breakpoints[i].replace('px', ''), 10);
+                if (pixels <= iframeWidth) {
+                    currentBreakpoint = breakpoints[i];
+                    break;
+                }
+            }
+            const ratio = ratios[currentBreakpoint] || null;
+            if (ratio) {
+                iframe.style.aspectRatio = ratio;
+            }
+        });
+    };
+
     const createBanner = (placeholderNode, html) => {
         const node = document.createElement('div');
         node.innerHTML = html;
-        placeholderNode.replaceWith(node.firstElementChild);// node.innerHTML = html;
+        const banner = node.firstElementChild;
+        placeholderNode.replaceWith(banner);
+        banners.push(banner);
+        onResize();
     };
 
     const init = () => {
@@ -71,5 +107,6 @@
     };
 
     window.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('resize', onResize);
 
 })();

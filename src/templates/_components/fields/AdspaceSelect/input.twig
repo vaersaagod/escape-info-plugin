@@ -27,7 +27,7 @@
 {% js %}
     $(function () {
         new EscapeInfoAdspaceSelectField('#{{ id }}-field', {
-            ads: '{{ ads|json_encode|e('js') }}',
+            ads: '{{ ads|map(ad => { title: ad.title|default, uid: ad.uid|default, siteUid: ad.siteUid|default, status: ad.status|default })|json_encode|e('js') }}',
             sites: '{{ sites|json_encode|e('js') }}',
             limit: {{ field.limit|default('null') }}
         });

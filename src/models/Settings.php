@@ -2,7 +2,6 @@
 
 namespace escape\info\models;
 
-use Craft;
 use craft\base\Model;
 
 class Settings extends Model
@@ -25,5 +24,8 @@ class Settings extends Model
 
     /** @var string */
     public string $siteName;
+
+    /** @var string|null */
+    public ?string $bannerWrapperClassName = null;
 
 }
