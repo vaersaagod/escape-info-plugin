@@ -13,6 +13,9 @@ use escape\info\EscapeInfo;
 use escape\info\helpers\AdspaceHelper;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+
+use yii\base\InvalidConfigException;
 
 /**
  *
@@ -25,33 +28,23 @@ class Adspace extends Component
      *
      * @param bool $bypassCache
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
+     * @throws GuzzleException
+     * @throws InvalidConfigException
      */
     public function getSites(bool $bypassCache = false): array
     {
         $cacheKey = static::getCacheKey('adspace-sites');
-        $cachesEnabled = !$bypassCache && EscapeInfo::getInstance()->getSettings()->cachesEnabled;
-        if ($cachesEnabled) {
+        if (!$bypassCache && EscapeInfo::getInstance()->getSettings()->cachesEnabled) {
             $cachedData = Craft::$app->getCache()->get($cacheKey);
-            if ($cachedData && \is_array($cachedData)) {
+            if ($cachedData && is_array($cachedData)) {
                 return $cachedData;
             }
         }
         $client = $this->getGuzzleClient();
-        try {
-            $response = $client->get('adspace/sites');
-            $data = \json_decode($response->getBody()->getContents(), true)['data'] ?? null;
-        } catch (\Throwable $e) {
-            Craft::error($e->getMessage(), __METHOD__);
-            if (Craft::$app->getConfig()->getGeneral()->devMode) {
-                throw $e;
-            }
-            return Craft::$app->getCache()->get($cacheKey) ?? [];
-        }
-        if (!$data) {
-            Craft::$app->getCache()->delete($cacheKey);
-            return [];
+        $response = $client->get('adspace/sites');
+        $data = json_decode($response->getBody()->getContents(), true)['data'] ?? null;
+        if (!is_array($data)) {
+            throw new \Exception("Invalid data from Playground");
         }
         Craft::$app->getCache()->set($cacheKey, $data, ConfigHelper::durationInSeconds('PT1H'));
         return $data;
@@ -60,33 +53,23 @@ class Adspace extends Component
     /**
      * @param bool $bypassCache
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
+     * @throws GuzzleException
+     * @throws InvalidConfigException
      */
     public function getAds(bool $bypassCache = false): array
     {
         $cacheKey = static::getCacheKey('adspace-ads');
-        $cachesEnabled = !$bypassCache && EscapeInfo::getInstance()->getSettings()->cachesEnabled;
-        if ($cachesEnabled) {
+        if (!$bypassCache && EscapeInfo::getInstance()->getSettings()->cachesEnabled) {
             $cachedData = Craft::$app->getCache()->get($cacheKey);
-            if ($cachedData && \is_array($cachedData)) {
+            if ($cachedData && is_array($cachedData)) {
                 return $cachedData;
             }
         }
         $client = $this->getGuzzleClient();
-        try {
-            $response = $client->get('adspace/ads');
-            $data = \json_decode($response->getBody()->getContents(), true)['data'] ?? null;
-        } catch (\Throwable $e) {
-            Craft::error($e->getMessage(), __METHOD__);
-            if (Craft::$app->getConfig()->getGeneral()->devMode) {
-                throw $e;
-            }
-            return Craft::$app->getCache()->get($cacheKey) ?? [];
-        }
-        if (!$data) {
-            Craft::$app->getCache()->delete($cacheKey);
-            return [];
+        $response = $client->get('adspace/ads');
+        $data = json_decode($response->getBody()->getContents(), true)['data'] ?? null;
+        if (!is_array($data)) {
+            throw new \Exception("Invalid data from Playground");
         }
         Craft::$app->getCache()->set($cacheKey, $data, ConfigHelper::durationInSeconds('PT5M'));
         return $data;

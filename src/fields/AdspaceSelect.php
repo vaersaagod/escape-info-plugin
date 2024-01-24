@@ -92,13 +92,23 @@ class AdspaceSelect extends Field
         $namespacedId = Craft::$app->getView()->namespaceInputId($id);
 
         // Get sites
-        $sites = EscapeInfo::getInstance()->adspace->getSites();
+        try {
+            $sites = EscapeInfo::getInstance()->adspace->getSites();
+        } catch (\Throwable $e) {
+            Craft::error($e, __METHOD__);
+            return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
+        }
 
         $settings = EscapeInfo::getInstance()->getSettings();
         $defaultSite = $settings->defaultSite;
 
         // Get all ads from Playground
-        $ads = EscapeInfo::getInstance()->adspace->getAds();
+        try {
+            $ads = EscapeInfo::getInstance()->adspace->getAds();
+        } catch (\Throwable $e) {
+            Craft::error($e, __METHOD__);
+            return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
+        }
 
         // Filter by container
         if ($this->containers && \is_array($this->containers)) {
@@ -151,7 +161,12 @@ class AdspaceSelect extends Field
      */
     public function getSettingsHtml(): ?string
     {
-        $sites = EscapeInfo::getInstance()->adspace->getSites();
+        try {
+            $sites = EscapeInfo::getInstance()->adspace->getSites();
+        } catch (\Throwable $e) {
+            Craft::error($e->getMessage(), __METHOD__);
+            return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
+        }
         return Craft::$app->getView()->renderTemplate('escape-info/_components/fields/AdspaceSelect/settings.twig', [
             'sites' => $sites,
             'field' => $this,
