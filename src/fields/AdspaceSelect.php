@@ -39,7 +39,7 @@ class AdspaceSelect extends Field
     }
 
     /** @inheritdoc */
-    public static function valueType(): string
+    public static function phpType(): string
     {
         return 'mixed';
     }

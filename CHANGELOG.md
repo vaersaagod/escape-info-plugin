@@ -5,18 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## 2.2.0 - 2024-01-24
+## 3.0.0 - 2025-08-10
+### Added
+- Craft 5 support
 
+## 2.2.0 - 2024-01-24
 - Adds error handling for the Adspace Select field type   
 
 ## 2.1.0 - 2023-08-10
-
 - Brings back multi-format support and other latest changes from v. 1.x
 
 ## 2.0.0 - 2023-08-09
-
 ### Added
-
 - Craft 4 support
 
 ## 1.5.1 - 2023-05-03
