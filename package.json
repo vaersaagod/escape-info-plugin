@@ -23,12 +23,6 @@
       ],
       "distDir": "./src/web/assets/dist/adspace"
     },
-    "adspace-banners.js": {
-      "source": [
-        "./src/web/assets/src/playground/adspace-banners.js"
-      ],
-      "distDir": "./src/web/assets/dist/adspace"
-    },
     "adspace-popup.js": {
       "source": [
         "./src/web/assets/src/playground/adspace-popup.js"

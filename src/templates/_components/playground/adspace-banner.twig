@@ -1,10 +1,9 @@
 {% apply spaceless %}
-
     {% set metaData = ad.metaData.banner|default(null) %}
-
     {% if metaData %}
+        {% set adId = 'banner-' ~ ad.uid ~ '-' ~ random(999999999999) %}
 
-        {% set ratios = metaData.ratios|default %}
+        {% set ratios = metaData.ratios|default({}) %}
         {% set defaultRatio = ratios.default|default(16/9) %}
 
         {% set renderFullWidth = metaData.settings.renderFullWidth ?? true %}
@@ -14,14 +13,25 @@
             {% set wrapperClassName = null %}
         {% endif %}
 
-        <div class="adspace-banner tw-w-full tw-relative tw-overflow-hidden">
+        {% set breakpoints = ratios|keys|filter(key => key != 'default') %}
+
+        <style>
+            #{{ adId }} iframe {
+                aspect-ratio: {{ defaultRatio }} / 1;
+                {% for breakpoint in breakpoints %}
+                    @media screen and (min-width: {{ breakpoint }}) {
+                        aspect-ratio: {{ ratios[breakpoint] }} / 1;
+                    }
+                {% endfor %}
+            }
+        </style>
+
+        <div id="{{ adId }}" class="adspace-banner tw-w-full tw-relative tw-overflow-hidden">
             <div class="tw-relative tw-w-full{{ wrapperClassName ? " #{wrapperClassName}" }}">
                 <div class="tw-relative tw-w-full tw-bg-gray-light">
-                    <iframe class="tw-w-full tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-ratios="{{ ratios|json_encode }}" data-expand="1000" style="aspect-ratio:{{ defaultRatio }} / 1;"></iframe>
+                    <iframe class="tw-w-full tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-expand="1000"></iframe>
                 </div>
             </div>
         </div>
-
     {% endif %}
-
 {% endapply %}

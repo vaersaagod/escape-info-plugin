@@ -3,9 +3,12 @@
 namespace escape\info\web\twig;
 
 use Craft;
-use escape\info\assetbundles\AdspaceBannersBundle;
+use craft\helpers\Json;
+
+use escape\info\assetbundles\AdspacePopupBundle;
+
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class EscapeInfoTwigExtension extends AbstractExtension
 {
@@ -18,26 +21,62 @@ class EscapeInfoTwigExtension extends AbstractExtension
         return 'escape-info';
     }
 
-    public function getFilters()
-    {
-        return [
-            new TwigFilter('renderPlaygroundPlaceholders', [$this, 'renderPlaygroundPlaceholdersFilter'], ['is_safe' => ['html']]),
-        ];
-    }
-
-    public function getFunctions()
+    public function getFilters(): array
     {
         return [];
     }
 
-    public function renderPlaygroundPlaceholdersFilter(string $html): string
+    public function getFunctions(): array
     {
-        // Banner placeholders
-        \preg_match_all('/(<!-- playground-banner:)(.*)( -->)/', $html, $matches);
-        if (!empty($matches[0] ?? null)) {
-            Craft::$app->getView()->registerAssetBundle(AdspaceBannersBundle::class);
-        }
-        return $html;
+        return [
+            new TwigFunction('renderAdspaceBannerPlaceholder', [$this, 'renderAdspaceBannerPlaceholderFunction'], ['is_safe' => ['html']]),
+            new TwigFunction('renderAdspacePopupPlaceholder', [$this, 'renderAdspacePopupPlaceholderFunction'], ['is_safe' => ['html']]),
+        ];
+    }
+
+    /**
+     * @param string $adUid
+     * @param string $siteUid
+     * @param array $attributes
+     * @return string
+     */
+    public function renderAdspaceBannerPlaceholderFunction(string $adUid, string $siteUid, array $attributes = []): string
+    {
+        // Render a placeholder as an HTML comment
+        $data = Json::encode([
+            'ad' => [
+                'uid' => $adUid,
+                'siteUid' => $siteUid,
+            ],
+            'attributes' => $attributes,
+        ]);
+        return "<!-- playground-banner:$data -->";
+    }
+
+    /**
+     * @param array|null $selectedAds
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function renderAdspacePopupPlaceholderFunction(?array $selectedAds = null): string
+    {
+        return '';
+
+//        if (empty($selectedAds)) {
+//            return '';
+//        }
+//        // Render a placeholder as an HTML comment
+//        $data = Json::encode([
+//            'ads' => array_map(function (array $ad) {
+//                return [
+//                    'uid' => $ad['uid'],
+//                    'siteUid' => $ad['siteUid'],
+//                    'position' => $ad['position'] ?? 'center',
+//                ];
+//            }, $selectedAds),
+//        ]);
+//        Craft::$app->getView()->registerAssetBundle(AdspacePopupBundle::class);
+//        return "<!-- playground-popup:$data -->";
     }
 
 }

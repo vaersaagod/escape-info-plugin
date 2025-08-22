@@ -10,6 +10,7 @@ use craft\helpers\Json;
 
 use escape\info\EscapeInfo;
 
+use escape\info\helpers\AdspaceHelper;
 use yii\db\Schema;
 
 class AdspaceSelect extends Field
@@ -93,7 +94,7 @@ class AdspaceSelect extends Field
 
         // Get sites
         try {
-            $sites = EscapeInfo::getInstance()->adspace->getSites();
+            $sites = AdspaceHelper::getSitesFromApi();
         } catch (\Throwable $e) {
             Craft::error($e, __METHOD__);
             return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
@@ -104,7 +105,7 @@ class AdspaceSelect extends Field
 
         // Get all ads from Playground
         try {
-            $ads = EscapeInfo::getInstance()->adspace->getAds();
+            $ads = EscapeInfo::getInstance()->adspace->getAllAds();
         } catch (\Throwable $e) {
             Craft::error($e, __METHOD__);
             return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
@@ -162,7 +163,7 @@ class AdspaceSelect extends Field
     public function getSettingsHtml(): ?string
     {
         try {
-            $sites = EscapeInfo::getInstance()->adspace->getSites();
+            $sites = AdspaceHelper::getSitesFromApi();
         } catch (\Throwable $e) {
             Craft::error($e->getMessage(), __METHOD__);
             return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
