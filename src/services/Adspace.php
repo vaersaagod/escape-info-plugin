@@ -53,7 +53,7 @@ class Adspace extends Component
         // The ads JSON file should be updated with a cronjob
         // But if it doesn't exist at all, allow to create it
         $adsRepositoryFilePath = $this->getAdsRepositoryFilePath();
-        if (!file_exists($adsRepositoryFilePath) || filemtime($adsRepositoryFilePath) > time() - 86400) {
+        if (!file_exists($adsRepositoryFilePath) || (time() - filemtime($adsRepositoryFilePath)) > 86400) {
             if (!$this->updateAdsRepository()) {
                 return [];
             }
@@ -184,8 +184,6 @@ class Adspace extends Component
      * @param string $adUid
      * @param string $siteUid
      * @return string
-     * @throws GuzzleException
-     * @throws \Throwable
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -241,7 +239,7 @@ class Adspace extends Component
     {
         $allAds = Collection::make($this->getAllAds());
         return $allAds
-            ->keyBy(static fn (array $ad) => "{$ad['uid']}:{$ad['siteUid']}")
+            ->keyBy(static fn(array $ad) => "{$ad['uid']}:{$ad['siteUid']}")
             ->all();
     }
 
