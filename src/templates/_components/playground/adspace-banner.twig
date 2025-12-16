@@ -15,18 +15,17 @@
 
         {% set breakpoints = ratios|keys|filter(key => key != 'default') %}
 
-        <style>
-            #{{ adId }} iframe {
-                aspect-ratio: {{ defaultRatio }} / 1;
+        <div id="{{ adId }}" class="adspace-banner tw-w-full tw-relative tw-overflow-hidden">
+            <style>
+                #{{ adId }} iframe {
+                    aspect-ratio: {{ defaultRatio }} / 1;
                 {% for breakpoint in breakpoints %}
                     @media screen and (min-width: {{ breakpoint }}) {
                         aspect-ratio: {{ ratios[breakpoint] }} / 1;
                     }
                 {% endfor %}
-            }
-        </style>
-
-        <div id="{{ adId }}" class="adspace-banner tw-w-full tw-relative tw-overflow-hidden">
+                }
+            </style>
             <div class="tw-relative tw-w-full{{ wrapperClassName ? " #{wrapperClassName}" }}">
                 <div class="tw-relative tw-w-full tw-bg-gray-light">
                     <iframe class="tw-w-full tw-p-0 tw-overflow-hidden lazyload" data-src="{{ ad.url }}" data-expand="1000"></iframe>
