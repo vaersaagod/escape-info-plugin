@@ -19,7 +19,14 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
         return obj;
     }
 
-    var initialSelectedElements = ($hiddenInput.val() ? JSON.parse($hiddenInput.val()) : []).map(createKey);
+    // Ads come from the Playground API, so everything that goes into the markup is escaped
+    function renderAd(className, data) {
+        var site = sitesByUid[data.siteUid] || {};
+        var label = (data.title || '') + (site.handle ? ' (' + site.handle + ')' : '');
+        return '<div class="' + className + '" data-value="' + Craft.escapeHtml(data.key) + '"><span class="status ' + Craft.escapeHtml(data.status || '') + '"></span><span>' + Craft.escapeHtml(label) + '</span></div>';
+    }
+
+    var initialSelectedElements =($hiddenInput.val() ? JSON.parse($hiddenInput.val()) : []).map(createKey);
 
     var options = {
         create: false,
@@ -31,12 +38,10 @@ window.EscapeInfoAdspaceSelectField = function (id, config) {
         plugins: ["remove_button"],
         render: {
             item: function (data) {
-                var site = sitesByUid[data.siteUid];
-                return '<div class="item active" data-value="' + data.key + '"><span class="status ' + data.status + '"></span><span>' + (data.title + ' (' + site.handle + ')') + '</span></div>';
+                return renderAd('item active', data);
             },
             option: function (data) {
-                var site = sitesByUid[data.siteUid];
-                return '<div class="option" data-value="' + data.key + '"><span class="status ' + data.status + '"></span><span>' + (data.title + ' (' + site.handle + ')') + '</span></div>';
+                return renderAd('option', data);
             }
         },
         items: initialSelectedElements.map(function (element) {

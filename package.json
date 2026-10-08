@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "repository": "git@bitbucket.org:vaersaagod/escape-info-playground-plugin.git",
   "author": "Mats Mikkel Rummelhoff <mail@mmikkel.no>",
-  "license": "GNU",
+  "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {

@@ -82,6 +82,7 @@ class AdspaceHelper
             'base_uri' => EscapeInfo::getInstance()->getSettings()->escapeInfoUrl,
             'connect_timeout' => 5,
             'read_timeout' => 5,
+            'timeout' => 10,
         ]);
     }
 }

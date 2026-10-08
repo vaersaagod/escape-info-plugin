@@ -97,7 +97,7 @@ class AdspaceSelect extends Field
             $sites = AdspaceHelper::getSitesFromApi();
         } catch (\Throwable $e) {
             Craft::error($e, __METHOD__);
-            return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
+            return Html::tag('span', Html::encode("Error: {$e->getMessage()}"), ['class' => 'warning with-icon']);
         }
 
         $settings = EscapeInfo::getInstance()->getSettings();
@@ -108,7 +108,7 @@ class AdspaceSelect extends Field
             $ads = EscapeInfo::getInstance()->adspace->getAllAds();
         } catch (\Throwable $e) {
             Craft::error($e, __METHOD__);
-            return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
+            return Html::tag('span', Html::encode("Error: {$e->getMessage()}"), ['class' => 'warning with-icon']);
         }
 
         // Filter by container
@@ -166,7 +166,7 @@ class AdspaceSelect extends Field
             $sites = AdspaceHelper::getSitesFromApi();
         } catch (\Throwable $e) {
             Craft::error($e->getMessage(), __METHOD__);
-            return Html::tag('span', "Error: {$e->getMessage()}", ['class' => 'warning with-icon']);
+            return Html::tag('span', Html::encode("Error: {$e->getMessage()}"), ['class' => 'warning with-icon']);
         }
         return Craft::$app->getView()->renderTemplate('escape-info/_components/fields/AdspaceSelect/settings.twig', [
             'sites' => $sites,

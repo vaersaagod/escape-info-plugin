@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres
 to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+> [!IMPORTANT]
+> Clear the data caches after updating. Banner placeholders cached by an earlier version won't render.
+
+### Security
+- Hardened the plugin's front end and control panel output
+### Fixed
+- Pages no longer wait on the Playground API on every request while it's unreachable
+- Requests to the Playground API now time out after 10 seconds
+
 ## 3.0.1 - 2025-12-16
 ### Fixed
 - Fixed a rendering bug

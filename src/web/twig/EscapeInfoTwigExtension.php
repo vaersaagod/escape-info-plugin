@@ -42,14 +42,16 @@ class EscapeInfoTwigExtension extends AbstractExtension
      */
     public function renderAdspaceBannerPlaceholderFunction(string $adUid, string $siteUid, array $attributes = []): string
     {
-        // Render a placeholder as an HTML comment
+        // Render a placeholder as an HTML comment. It's signed, so that only placeholders rendered here are replaced
+        // with a banner. JSON_HEX_TAG keeps a "-->" in an attribute from closing the comment
         $data = Json::encode([
             'ad' => [
                 'uid' => $adUid,
                 'siteUid' => $siteUid,
             ],
             'attributes' => $attributes,
-        ]);
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG);
+        $data = Craft::$app->getSecurity()->hashData($data);
         return "<!-- playground-banner:$data -->";
     }
 

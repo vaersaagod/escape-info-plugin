@@ -20,10 +20,10 @@ class Settings extends Model
     public ?string $defaultSite = null;
 
     /** @var array */
-    public array $theme;
+    public array $theme = [];
 
-    /** @var string */
-    public string $siteName;
+    /** @var string|null */
+    public ?string $siteName = null;
 
     /** @var string|null */
     public ?string $bannerWrapperClassName = null;

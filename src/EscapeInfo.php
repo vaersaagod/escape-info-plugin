@@ -6,7 +6,6 @@ use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
-use craft\events\RegisterUrlRulesEvent;
 use craft\events\TemplateEvent;
 use craft\helpers\App;
 use craft\helpers\Html;
@@ -15,7 +14,6 @@ use craft\i18n\PhpMessageSource;
 use craft\log\MonologTarget;
 use craft\services\Fields;
 use craft\web\twig\variables\CraftVariable;
-use craft\web\UrlManager;
 use craft\web\View;
 
 use escape\info\assetbundles\PlaygroundBundle;
@@ -86,15 +84,6 @@ class EscapeInfo extends Plugin
             ], View::TEMPLATE_MODE_CP);
         });
 
-        Event::on(
-            UrlManager::class,
-            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-            function (RegisterUrlRulesEvent $event) {
-                $event->rules['playground/get-shoutouts-html'] = 'escape-info/adspace/get-shoutouts-html';
-                $event->rules['playground/get-popup-html'] = 'escape-info/adspace/get-popup-html';
-            }
-        );
-
         // Render banner placeholders
         if (Craft::$app->getRequest()->getIsSiteRequest()) {
             Event::on(
@@ -102,15 +91,20 @@ class EscapeInfo extends Plugin
                 View::EVENT_AFTER_RENDER_PAGE_TEMPLATE,
                 static function (TemplateEvent $event) {
                     $html = $event->output;
-                    $event->output = preg_replace_callback('/<!--\s*playground-banner:(\{.*?\})\s*-->/s', function ($matches) {
+                    $event->output = preg_replace_callback('/<!--\s*playground-banner:(.+?)\s*-->/s', function ($matches) {
                         if (EscapeInfoHelper::isSandbox()) {
                             // If we're sandboxed, just return an empty string to replace the placeholder
                             return '';
                         }
 
-                        $json = $matches[1];
+                        // Placeholders are signed when rendered, so ignore any that weren't rendered by the plugin
+                        $json = Craft::$app->getSecurity()->validateData($matches[1]);
+                        if ($json === false) {
+                            return '';
+                        }
+
                         $data = Json::decodeIfJson($json);
-                        if (empty($data)) {
+                        if (empty($data) || !is_array($data)) {
                             return '';
                         }
 

@@ -26,6 +26,12 @@ use yii\base\InvalidConfigException;
 class Adspace extends Component
 {
 
+    /** @var string Set for a few minutes after a failed update of the ads repository */
+    private const UPDATE_FAILED_CACHE_KEY = 'escape-info:ads-update-failed';
+
+    /** @var array|null The ads, memoized for the request */
+    private ?array $_allAds = null;
+
     /**
      * @return array
      * @throws InvalidConfigException
@@ -50,12 +56,22 @@ class Adspace extends Component
      */
     public function getAllAds(): array
     {
+        if ($this->_allAds !== null) {
+            return $this->_allAds;
+        }
+
         // The ads JSON file should be updated with a cronjob
-        // But if it doesn't exist at all, allow to create it
+        // But if it doesn't exist at all, allow to create it. If that fails, wait a few minutes before trying again,
+        // so that an unreachable API doesn't hold up every page with a banner on it
         $adsRepositoryFilePath = $this->getAdsRepositoryFilePath();
         if (!file_exists($adsRepositoryFilePath) || (time() - filemtime($adsRepositoryFilePath)) > 86400) {
-            if (!$this->updateAdsRepository()) {
-                return [];
+            $cache = Craft::$app->getCache();
+            if ($cache->get(self::UPDATE_FAILED_CACHE_KEY)) {
+                return $this->_allAds = [];
+            }
+            if ($this->updateAdsRepository() === false) {
+                $cache->set(self::UPDATE_FAILED_CACHE_KEY, true, 300);
+                return $this->_allAds = [];
             }
         }
 
@@ -66,10 +82,10 @@ class Adspace extends Component
             }
         } catch (\Throwable $e) {
             Craft::error($e, __METHOD__);
-            return [];
+            return $this->_allAds = [];
         }
 
-        return $data;
+        return $this->_allAds = $data;
     }
 
     /**
@@ -96,6 +112,9 @@ class Adspace extends Component
             Craft::error($e, __METHOD__);
             return false;
         }
+
+        $this->_allAds = null;
+        Craft::$app->getCache()->delete(self::UPDATE_FAILED_CACHE_KEY);
 
         return count($ads);
     }
@@ -199,6 +218,16 @@ class Adspace extends Component
         $ad = $allAds["$adUid:$siteUid"] ?? null;
         if (empty($ad) || $ad['status'] !== Entry::STATUS_LIVE) {
             return '';
+        }
+
+        // The ratios end up in a <style> block, so only keep numeric ratios at plain CSS lengths
+        $ratios = $ad['metaData']['banner']['ratios'] ?? null;
+        if (is_array($ratios)) {
+            $ad['metaData']['banner']['ratios'] = array_filter(
+                $ratios,
+                static fn($ratio, $breakpoint) => is_numeric($ratio) && ($breakpoint === 'default' || preg_match('/^\d+(\.\d+)?(px|em|rem)$/', (string)$breakpoint)),
+                ARRAY_FILTER_USE_BOTH
+            );
         }
 
         $html = Craft::$app->getView()->renderTemplate('escape-info/_components/playground/adspace-banner.twig', [
